@@ -1,60 +1,91 @@
 #include <Servo.h>
 #include "math.h"
 
+
+float board[64][2];
+void initializeBoardCoordinates(float armX, float armY, float squareWidth=5.0625) {
+  /*
+    Generates the (x, y) coordinates for all squares of the board
+    given the width of one square of the board. The generated
+    coordinates correspond to the center of the square.
+
+    (armX, armY) is mapped to (0, 0), and the
+    x axis is considered to be along a rank, and the y axis
+    to be along a file. Coordinates to all squares are generated
+    from the reference point (armX, armY);
+  */
+  for (int i = 0; i < 64; i++) {
+    int rank = i / 8;
+    int file = i % 8;
+    board[i][0] = (file * square_width) - armX;
+    board[i][1] = (rank * square_width) - armY;
+  }
+}
+
 const int BASE_SERVO_PIN = 9;  // Base servo
 const int ARM1_SERVO_PIN = 10; // Arm 1 servo
 const int ARM2_SERVO_PIN = 11; // Arm 2 servo
 
-const float l1 = 400; // Length of first arm
-const float l2 = 400; // Length of second arm
+const float L1 = 400; // Length of first arm
+const float L2 = 400; // Length of second arm
+const float ARM_X = 0.0;  // The distance of the arm base from the square A1, along the x axis
+const float ARM_Y = 0.0;  // The distance of the arm base from the square A1, along the y axis
 
-
-Servo base_servo;
-int base_servo_pos = 0;
-Servo arm1_servo;
-int arm1_servo_pos = 0;
-Servo arm2_servo;
-int arm2_servo_pos = 0;
+Servo baseServo;
+Servo arm1Servo;
+Servo arm2Servo;
 
 float x, y, z; // Cartesian coordinates
-float theta_bg, theta_ba, theta_aa; // Angles of robot arms 
+float angles[3]; // Angles of robot arms 
 
-float *getAnglesFromCoords(float x, float y, float z, float angles[]) {
-  angles[0] = atan(y/x);  // theta_bg
+
+
+void getAnglesFromCoords(float x, float y, float z, float (&armAngles) [3]) {
+  armAngles[0] = atan(y/x);  // theta_bg
   
-  float num = sq(l1) + sq(x) + sq(y) + sq(z) - sq(l2);
-  float den = 2 * l1 * sqrt(sq(x) + sq(y) + sq(z));
-  angles[1] = acos(num/den) + atan(z/(sq(x) + sq(y)));  // theta_ba
+  float num = sq(L1) + sq(x) + sq(y) + sq(z) - sq(L2);
+  float den = 2 * L1 * sqrt(sq(x) + sq(y) + sq(z));
+  armAngles[1] = acos(num/den) + atan(z/(sq(x) + sq(y)));  // theta_ba
 
-  num = sq(l1) + sq(l2) - sq(x) - sq(y) - sq(z);
-  den = 2*l1*l2;
+  num = sq(L1) + sq(L2) - sq(x) - sq(y) - sq(z);
+  den = 2*L1*L2;
 
-  angles[2] = acos(num/den);  // theta_aa
+  armAngles[2] = acos(num/den);  // theta_aa
 }
 
-int rotateServo(Servo motor, int prevAngle, int angle) {
+void rotateServo(Servo motor, int angle) {
   /*
-  Rotates the given servo by angle in the clockwise direction.
-  Also accepts the current position of the servo and returns
-  the new position of the servo.
-
-  Servo angle is limited between 0 and 180.
+    Rotates the given servo motor to the passed angle.
+    Limits the angle between 0 and 180.
   */
-  motor.write((prevAngle + angle) % 181);
-  return (prevAngle + angle) % 181;
+  motor.write(angle % 181);
+}
+
+void navigateTo(float x, float y, float z) {
+  /*
+    Navigate the arm to the given coordinates.
+  */
+  getAnglesFromCoordinates(x, y, z, angles);
+  int theta_bg = (int) angles[0] * 57296 / 1000;
+  int theta_ba = (int) angles[1] * 57296 / 1000;
+  int theta_aa = (int) angles[2] * 57296 / 1000;
+
+  rotateServo(baseServo, theta_bg);
+  rotateServo(arm1Servo, theta_ba);
+  rotateServo(arm2Servo, theta_aa);
 }
 
 void setup() {
   Serial.begin(9600);
-  base_servo.attach(BASE_SERVO_PIN);
-  arm1_servo.attach(ARM1_SERVO_PIN);
-  arm2_servo.attach(ARM2_SERVO_PIN);
+  initializeBoardCoordinates(ARM_X, ARM_Y);
+  baseServo.attach(BASE_SERVO_PIN);
+  arm1Servo.attach(ARM1_SERVO_PIN);
+  arm2Servo.attach(ARM2_SERVO_PIN);
 }
 
 void loop() {
   while (Serial.available() == 0) {}
   int angle = Serial.readString().toInt();
-  base_servo_pos = rotateServo(base_servo, base_servo_pos, angle);
-  Serial.println(base_servo_pos);
+  rotateServo(baseServo, angle);
   delay(1000);
 }
