@@ -5,4 +5,4 @@ venv/
 .venv
 __pycache__/
 .vscode/
-stockfish_15.1_win_x64_avx2/
+stockfish/

@@ -2,6 +2,8 @@ import argparse
 from functools import wraps
 import sys
 
+import stockfishpy
+
 
 def handle_exit(f):
     """
@@ -21,7 +23,7 @@ def handle_exit(f):
 
 @handle_exit
 def main():
-    parser = argparse.ArgumentParser(prog='Woozy', description='A chess-playing robotic arm')
+    parser = argparse.ArgumentParser(prog='woozy', description='A chess-playing robotic arm')
     parser.add_argument(
         '-e', 
         '--engine', 
@@ -39,12 +41,20 @@ def main():
         help='Set the search depth. Can be between 1 and 10 (inclusive). Recommended depth for default engine is 4 or 5.',
         dest='depth'
     )
+    parser.add_argument(
+        '-p',
+        '--path',
+        default='stockfish/stockfish.exe',
+        help='Sets the path to the stockfish executable',
+        dest='path'
+    )
 
     args = parser.parse_args()
     if args.engine == 'default':
         pass
     else:
-        pass
+        engine = stockfishpy.Engine(args.path)
+        print(engine.isready())
 
 
 if __name__ == '__main__':

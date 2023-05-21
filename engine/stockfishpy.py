@@ -53,9 +53,9 @@ class Engine(subprocess.Popen):
                                       stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE)
         except Exception:
-            sys.exit('Install correct Stockfish PATH')
+            sys.exit('Install correct Stockfish PATH ')
 
-        default_params = {
+        default_param = {
             "Write Debug Log": "false",
             "Contempt": 0,
             "Threads": 1,
@@ -75,9 +75,9 @@ class Engine(subprocess.Popen):
             "SyzygyProbeLimit": 6
         }
 
-        default_params.update(param)
-        self.param = default_params
-        for name, value in list(default_params.items()):
+        default_param.update(param)
+        self.param = default_param
+        for name, value in list(default_param.items()):
             self.setoption(name, value)
 
         self.uci()
