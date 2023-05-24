@@ -8,14 +8,20 @@ import serial
 from chessengine.lookup_tables import pos_to_coords
 
 
-COM_PORT = 'COM6'
-BAUD_RATE = 9600
+def get_socket(port: str, baud_rate: int) -> serial.Serial:
+    """
+    Creates a socket connection at the given port at the given baud rate,
+    opens the socket, and returns the socket.
+    """
+    try:
+        socket = serial.Serial(port=port, baudrate=baud_rate)
+    except serial.SerialException as e:
+        print('Serial port could not be opened. Check the port name and baud rate and try again.')
+        raise
+    return socket
 
 
-socket = serial.Serial(COM_PORT, BAUD_RATE)
-
-
-def send_move_to_arm(move: tuple[str,str] | tuple[int,int]) -> None:
+def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int]) -> None:
     """
     Encodes the move to bytes and sends move to arm.
     
