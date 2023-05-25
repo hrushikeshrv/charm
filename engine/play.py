@@ -3,6 +3,7 @@ from functools import wraps
 import sys
 
 from chessengine import Board
+from chessengine.lookup_tables import coords_to_pos
 from chessengine.utils import clear_lines
 import comms
 import stockfishpy
@@ -104,7 +105,11 @@ def main():
                 comms.send_move_to_arm(socket, (best_move[0:2], best_move[2:]))
         else:
             # Read move to make from serial port
-            pass
+            start, end = comms.get_move_from_arm(socket)
+            if args.engine == 'default':
+                board.move_raw(coords_to_pos[start], coords_to_pos[end])
+            else:
+                engine.setposition([start+end])
             
         side_to_move = 'white' if side_to_move == 'black' else 'black'
 

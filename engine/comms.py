@@ -32,3 +32,14 @@ def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int]) -> None:
 
     move_str = f'{_[0]},{_[1]}'
     socket.write(move_str.encode())
+
+
+def get_move_from_arm(socket) -> tuple[str,str]:
+    """
+    Blocks for the arm to send a move to the computer and
+    returns the move converted to the appropriate format
+    depending on the engine.
+    """
+    start = pos_to_coords[int(socket.read(4))].lower()
+    end = pos_to_coords[int(socket.read(4))].lower()
+    return start, end
