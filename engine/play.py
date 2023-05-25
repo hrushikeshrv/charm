@@ -5,7 +5,6 @@ import sys
 from chessengine import Board
 from chessengine.utils import clear_lines
 import comms
-import serial
 import stockfishpy
 
 
@@ -69,7 +68,7 @@ def main():
     )
 
     args = parser.parse_args()
-    
+
     socket = comms.get_socket(args.port, args.baud)
 
     player_side = input('Do you want to play white or black (w/b)?')
