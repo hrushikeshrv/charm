@@ -97,11 +97,14 @@ def main():
             if args.engine == 'default':
                 _, best_move = board.search_forward(args.depth)
                 board.move(best_move[0], best_move[1])
-                comms.send_move_to_arm(socket, (best_move[0], best_move[1]))
+                end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
+                capture = end_side is not None
+                comms.send_move_to_arm(socket, (best_move[0], best_move[1]), capture)
             else:
                 # Stockfish always makes the best moves
                 best_move = engine.bestmove()['bestmove']
                 engine.setposition([best_move])
+                # TODO - Identify end piece and pass the capture flag
                 comms.send_move_to_arm(socket, (best_move[0:2], best_move[2:]))
         else:
             # Read move to make from serial port

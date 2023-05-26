@@ -21,16 +21,20 @@ def get_socket(port: str, baud_rate: int):
     return socket
 
 
-def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int]) -> None:
+def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int], capture: bool) -> None:
     """
     Encodes the move to bytes and sends move to arm.
+    The move is encoded in the format "<start_square>,<end_square>"
     """
     if type(move[0]) == 'int':
         _ = (pos_to_coords[int(log2(move[0]))].lower(), pos_to_coords[int(log2(move[1]))].lower())
     else:
         _ = (move[0], move[1])
 
-    move_str = f'{_[0]},{_[1]}'
+    if capture:
+        move_str = f'{_[0]}x{_[1]}'
+    else:
+        move_str = f'{_[0]},{_[1]}'
     socket.write(move_str.encode())
 
 
@@ -39,6 +43,9 @@ def get_move_from_arm(socket) -> tuple[str,str]:
     Blocks for the arm to send a move to the computer and
     returns the move converted to the appropriate format
     depending on the engine.
+
+    Expects the arm to send the move by sending the start
+    square first, then the end square.
     """
     start = pos_to_coords[int(socket.read(4))].lower()
     end = pos_to_coords[int(socket.read(4))].lower()

@@ -66,13 +66,21 @@ void navigateTo(float x, float y, float z) {
     Navigate the arm to the given coordinates.
   */
   getAnglesFromCoordinates(x, y, z, angles);
-  int theta_bg = (int) angles[0] * 57296 / 1000;
-  int theta_ba = (int) angles[1] * 57296 / 1000;
-  int theta_aa = (int) angles[2] * 57296 / 1000;
+  int theta_bg = (int) angles[0] * 57296 / 1000;  // Convert to degrees
+  int theta_ba = (int) angles[1] * 57296 / 1000;  // Convert to degrees
+  int theta_aa = (int) angles[2] * 57296 / 1000;  // Convert to degrees
 
   rotateServo(baseServo, theta_bg);
   rotateServo(arm1Servo, theta_ba);
   rotateServo(arm2Servo, theta_aa);
+}
+
+void move(String start, String end) {
+  /*
+    Pick up the piece at the start square and move it
+    to the end square. If end square is occupied, pick
+    up and move the end piece out of the way first.
+  */
 }
 
 void setup() {
@@ -84,8 +92,10 @@ void setup() {
 }
 
 void loop() {
-  while (Serial.available() == 0) {}
-  int angle = Serial.readString().toInt();
-  rotateServo(baseServo, angle);
-  delay(1000);
+  if (Serial.available()) {
+    String move = Serial.readString();
+    Serial.println(move);
+    String start = move.charAt(0) + move.charAt(1);
+    String end = move.charAt(3) + move.charAt(4);
+  }
 }
