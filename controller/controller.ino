@@ -75,10 +75,10 @@ void navigateTo(float x, float y, float z) {
   rotateServo(arm2Servo, theta_aa);
 }
 
-void move(String start, String end) {
+void move(String start, String end, bool capture) {
   /*
     Pick up the piece at the start square and move it
-    to the end square. If end square is occupied, pick
+    to the end square. If capture is true, pick
     up and move the end piece out of the way first.
   */
 }
@@ -97,5 +97,6 @@ void loop() {
     Serial.println(move);
     String start = move.charAt(0) + move.charAt(1);
     String end = move.charAt(3) + move.charAt(4);
+    bool capture = move.charAt(2) == 'x';
   }
 }

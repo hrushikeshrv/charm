@@ -14,7 +14,7 @@ def get_socket(port: str, baud_rate: int):
     opens the socket, and returns the socket.
     """
     try:
-        socket = serial.Serial(port=port, baudrate=baud_rate)
+        socket = serial.Serial(port=port, baudrate=baud_rate, timeout=20)
     except serial.SerialException as e:
         print(f'Could not connect to {port}. Check the port name and baud rate and try again.')
         raise
@@ -47,6 +47,10 @@ def get_move_from_arm(socket) -> tuple[str,str]:
     Expects the arm to send the move by sending the start
     square first, then the end square.
     """
-    start = pos_to_coords[int(socket.read(4))].lower()
-    end = pos_to_coords[int(socket.read(4))].lower()
+    try:
+        start = pos_to_coords[int(socket.read(4))].lower()
+        end = pos_to_coords[int(socket.read(4))].lower()
+    except ValueError:
+        print('Didn\'t receive any data from the arm')
+        raise
     return start, end
