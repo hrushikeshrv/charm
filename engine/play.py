@@ -67,15 +67,24 @@ def main():
         help='Set the baud rate for communication with Arduino',
         dest='baud'
     )
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        default=False,
+        type=bool,
+        dest='verbose',
+        help='Print debugging output to stdout',
+        choices=[True, False]
+    )
 
     args = parser.parse_args()
 
     socket = comms.get_socket(args.port, args.baud)
 
-    player_side = input('Do you want to play white or black (w/b)?')
+    player_side = input('Do you want to play white or black (w/b)? - ')
     while player_side not in ['w', 'b']:
         print('Enter "w" for white and "b" for black.')
-        player_side = input('Do you want to play white or black (w/b)?')
+        player_side = input('Do you want to play white or black (w/b)? - ')
 
     player_side = 'white' if player_side == 'w' else 'black'
     board_side = 'black' if player_side == 'white' else 'black'
@@ -83,11 +92,15 @@ def main():
     board = Board(board_side)
     engine = stockfishpy.Engine(args.path)
     engine.ucinewgame()
+    engine.uci()
     print(engine.isready())
     
     side_to_move = player_side if player_side == 'white' else board_side
     lines_printed = 11
     print(board)
+
+    if args.verbose:
+        print('Starting game')
     while True:
         clear_lines(lines_printed)
         print(board)
@@ -97,22 +110,38 @@ def main():
             if args.engine == 'default':
                 _, best_move = board.search_forward(args.depth)
                 board.move(best_move[0], best_move[1])
+                if args.verbose:
+                    print('Calculated best move using chessengine')
                 end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
                 capture = end_side is not None
+                if args.verbose:
+                    print('Sending move to arm')
                 comms.send_move_to_arm(socket, (best_move[0], best_move[1]), capture)
             else:
                 # Stockfish always makes the best moves
                 best_move = engine.bestmove()['bestmove']
                 engine.setposition([best_move])
-                # TODO - Identify end piece and pass the capture flag
-                comms.send_move_to_arm(socket, (best_move[0:2], best_move[2:]))
+                if args.verbose:
+                    print('Calculated best move using stockfish')
+                # Also track moves on chessengine's board to detect captures
+                start = coords_to_pos[best_move[0:2].upper()]
+                end = coords_to_pos[best_move[2:].upper()]
+                board.move(start, end)
+                end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
+                capture = end_side is not None
+
+                if args.verbose:
+                    print('Sending move to arm')
+                comms.send_move_to_arm(socket, (best_move[0:2], best_move[2:]), capture)
         else:
             # Read move to make from serial port
+            if args.verbose:
+                print('Waiting for move from arm')
             start, end = comms.get_move_from_arm(socket)
-            if args.engine == 'default':
-                board.move_raw(coords_to_pos[start], coords_to_pos[end])
-            else:
-                engine.setposition([start+end])
+            if args.verbose:
+                print(f'Received move from arm - {start} to {end}')
+            board.move_raw(coords_to_pos[start.upper()], coords_to_pos[end.upper()])
+            engine.setposition([start+end])
             
         side_to_move = 'white' if side_to_move == 'black' else 'black'
 
