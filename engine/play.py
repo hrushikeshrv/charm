@@ -1,10 +1,10 @@
 import argparse
 from functools import wraps
+from math import log2
 import sys
 
 from chessengine import Board
-from chessengine.lookup_tables import coords_to_pos
-from chessengine.utils import clear_lines
+from chessengine.lookup_tables import coords_to_pos, pos_to_coords
 import comms
 import stockfishpy
 
@@ -40,7 +40,7 @@ def main():
         '-d',
         '--depth',
         choices=range(1, 16),
-        default=5,
+        default=4,
         type=int,
         help='Set the search depth. Can be between 1 and 15 (inclusive). Recommended depth for default engine is 4 or 5.',
         dest='depth'
@@ -96,22 +96,18 @@ def main():
     print(engine.isready())
     
     side_to_move = player_side if player_side == 'white' else board_side
-    lines_printed = 11
     print(board)
 
     if args.verbose:
-        print('Starting game')
+        print(f'Starting game. Engine is playing {board_side}.')
     while True:
-        clear_lines(lines_printed)
-        print(board)
-        lines_printed = 11
-        if side_to_move == board.side:
+        if side_to_move == board_side:
             # Find move and make it (send it to arm)
             if args.engine == 'default':
                 _, best_move = board.search_forward(args.depth)
                 board.move(best_move[0], best_move[1])
                 if args.verbose:
-                    print('Calculated best move using chessengine')
+                    print(f'Calculated best move using chessengine - {pos_to_coords[int(log2(best_move[0]))]} to {pos_to_coords[int(log2(best_move[1]))]}')
                 end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
                 capture = end_side is not None
                 if args.verbose:

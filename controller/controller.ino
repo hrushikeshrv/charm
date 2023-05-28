@@ -17,8 +17,8 @@ void initializeBoardCoordinates(float armX, float armY, float squareWidth=5.0625
   for (int i = 0; i < 64; i++) {
     int rank = i / 8;
     int file = i % 8;
-    board[i][0] = (file * square_width) - armX;
-    board[i][1] = (rank * square_width) - armY;
+    board[i][0] = (file * squareWidth) - armX;
+    board[i][1] = (rank * squareWidth) - armY;
   }
 }
 
@@ -65,7 +65,7 @@ void navigateTo(float x, float y, float z) {
   /*
     Navigate the arm to the given coordinates.
   */
-  getAnglesFromCoordinates(x, y, z, angles);
+  getAnglesFromCoords(x, y, z, angles);
   int theta_bg = (int) angles[0] * 57296 / 1000;  // Convert to degrees
   int theta_ba = (int) angles[1] * 57296 / 1000;  // Convert to degrees
   int theta_aa = (int) angles[2] * 57296 / 1000;  // Convert to degrees
@@ -94,9 +94,11 @@ void setup() {
 void loop() {
   if (Serial.available()) {
     String move = Serial.readString();
-    Serial.println(move);
-    String start = move.charAt(0) + move.charAt(1);
-    String end = move.charAt(3) + move.charAt(4);
-    bool capture = move.charAt(2) == 'x';
+    //Serial.println(move);
+    String start = move.substring(0, 2);
+    String end = move.substring(3, 5);
+    bool capture = move[2] == 'x';
+    Serial.print(start);
+    Serial.print(end);
   }
 }

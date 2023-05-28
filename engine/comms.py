@@ -14,7 +14,7 @@ def get_socket(port: str, baud_rate: int):
     opens the socket, and returns the socket.
     """
     try:
-        socket = serial.Serial(port=port, baudrate=baud_rate, timeout=20)
+        socket = serial.Serial(port=port, baudrate=baud_rate, timeout=10)
     except serial.SerialException as e:
         print(f'Could not connect to {port}. Check the port name and baud rate and try again.')
         raise
@@ -26,7 +26,7 @@ def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int], capture: boo
     Encodes the move to bytes and sends move to arm.
     The move is encoded in the format "<start_square>,<end_square>"
     """
-    if type(move[0]) == 'int':
+    if isinstance(move[0], int) and isinstance(move[1], int):
         _ = (pos_to_coords[int(log2(move[0]))].lower(), pos_to_coords[int(log2(move[1]))].lower())
     else:
         _ = (move[0], move[1])
@@ -35,6 +35,7 @@ def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int], capture: boo
         move_str = f'{_[0]}x{_[1]}'
     else:
         move_str = f'{_[0]},{_[1]}'
+    print(f'Writing {move_str.encode()} to socket')
     socket.write(move_str.encode())
 
 
@@ -48,9 +49,11 @@ def get_move_from_arm(socket) -> tuple[str,str]:
     square first, then the end square.
     """
     try:
-        start = pos_to_coords[int(socket.read(4))].lower()
-        end = pos_to_coords[int(socket.read(4))].lower()
+        start = socket.read(2).decode()
+        print(start)
+        end = socket.read(2).decode()
+        print(end)
     except ValueError:
-        print('Didn\'t receive any data from the arm')
+        print('\n\nReceived invalid data from the arm')
         raise
     return start, end
