@@ -25,6 +25,7 @@ def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int], capture: boo
     """
     Encodes the move to bytes and sends move to arm.
     The move is encoded in the format "<start_square>,<end_square>"
+    or "<start_square>x<end_square>" in case the end square was captured.
     """
     if isinstance(move[0], int) and isinstance(move[1], int):
         _ = (pos_to_coords[int(log2(move[0]))].lower(), pos_to_coords[int(log2(move[1]))].lower())
@@ -50,9 +51,7 @@ def get_move_from_arm(socket) -> tuple[str,str]:
     """
     try:
         start = socket.read(2).decode()
-        print(start)
         end = socket.read(2).decode()
-        print(end)
     except ValueError:
         print('\n\nReceived invalid data from the arm')
         raise

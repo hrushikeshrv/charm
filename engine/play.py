@@ -87,7 +87,7 @@ def main():
         player_side = input('Do you want to play white or black (w/b)? - ')
 
     player_side = 'white' if player_side == 'w' else 'black'
-    board_side = 'black' if player_side == 'white' else 'black'
+    board_side = 'black' if player_side == 'white' else 'white'
 
     board = Board(board_side)
     engine = stockfishpy.Engine(args.path)
@@ -95,7 +95,7 @@ def main():
     engine.uci()
     print(engine.isready())
     
-    side_to_move = player_side if player_side == 'white' else board_side
+    side_to_move = 'white'
     print(board)
 
     if args.verbose:
@@ -105,11 +105,12 @@ def main():
             # Find move and make it (send it to arm)
             if args.engine == 'default':
                 _, best_move = board.search_forward(args.depth)
+                end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
                 board.move(best_move[0], best_move[1])
                 if args.verbose:
                     print(f'Calculated best move using chessengine - {pos_to_coords[int(log2(best_move[0]))]} to {pos_to_coords[int(log2(best_move[1]))]}')
-                end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
                 capture = end_side is not None
+                
                 if args.verbose:
                     print('Sending move to arm')
                 comms.send_move_to_arm(socket, (best_move[0], best_move[1]), capture)
@@ -119,11 +120,12 @@ def main():
                 engine.setposition([best_move])
                 if args.verbose:
                     print('Calculated best move using stockfish')
+                
                 # Also track moves on chessengine's board to detect captures
                 start = coords_to_pos[best_move[0:2].upper()]
                 end = coords_to_pos[best_move[2:].upper()]
-                board.move(start, end)
                 end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
+                board.move(start, end)
                 capture = end_side is not None
 
                 if args.verbose:
@@ -136,6 +138,7 @@ def main():
             start, end = comms.get_move_from_arm(socket)
             if args.verbose:
                 print(f'Received move from arm - {start} to {end}')
+                print(start, end, coords_to_pos[start.upper()], coords_to_pos[end.upper()])
             board.move_raw(coords_to_pos[start.upper()], coords_to_pos[end.upper()])
             engine.setposition([start+end])
             
