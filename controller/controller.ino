@@ -2,11 +2,21 @@
 #include "math.h"
 
 
-float board[64][2];
+String squares[] = {
+  "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8",
+  "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
+  "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8",
+  "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8",
+  "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8",
+  "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8",
+  "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8",
+  "H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8",
+}
+float boardCoordinates[64][2];
 void initializeBoardCoordinates(float armX, float armY, float squareWidth=5.0625) {
   /*
-    Generates the (x, y) coordinates for all squares of the board
-    given the width of one square of the board. The generated
+    Generates the (x, y) coordinates for all squares of the boardCoordinates
+    given the width of one square of the boardCoordinates. The generated
     coordinates correspond to the center of the square.
 
     (armX, armY) is mapped to (0, 0), and the
@@ -17,8 +27,8 @@ void initializeBoardCoordinates(float armX, float armY, float squareWidth=5.0625
   for (int i = 0; i < 64; i++) {
     int rank = i / 8;
     int file = i % 8;
-    board[i][0] = (file * squareWidth) - armX;
-    board[i][1] = (rank * squareWidth) - armY;
+    boardCoordinates[i][0] = (file * squareWidth) - armX;
+    boardCoordinates[i][1] = (rank * squareWidth) - armY;
   }
 }
 
@@ -30,6 +40,10 @@ const float L1 = 400; // Length of first arm
 const float L2 = 400; // Length of second arm
 const float ARM_X = 0.0;  // The distance of the arm base from the square A1, along the x axis
 const float ARM_Y = 0.0;  // The distance of the arm base from the square A1, along the y axis
+const float HOVER_Z = 15.0; // The z distance of gripper base such that the gripper hovers above a piece
+const float PICK_UP_Z = 0;  // The z distance of the gripper base when we want to pick up a piece
+const float CAPTURE_X = 30.0; // The x coordinate where the arm should put the captured pieces
+const float CAPTURE_Y = 30.0; // The y coordinate where the arm should put the captured pieces
 
 Servo baseServo;
 Servo arm1Servo;
@@ -39,7 +53,11 @@ float x, y, z; // Cartesian coordinates
 float angles[3]; // Angles of robot arms 
 
 
-
+/*
+  Calculates the arm angles given the (x, y, z) coordinates
+  the arm needs to go to. Stores the calculated angles in the 
+  angles array
+*/
 void getAnglesFromCoords(float x, float y, float z, float (&armAngles) [3]) {
   armAngles[0] = atan(y/x);  // theta_bg
   
@@ -53,18 +71,20 @@ void getAnglesFromCoords(float x, float y, float z, float (&armAngles) [3]) {
   armAngles[2] = acos(num/den);  // theta_aa
 }
 
+
+/*
+  Rotates the given servo motor to the passed angle.
+  Limits the angle between 0 and 180.
+*/
 void rotateServo(Servo motor, int angle) {
-  /*
-    Rotates the given servo motor to the passed angle.
-    Limits the angle between 0 and 180.
-  */
   motor.write(angle % 181);
 }
 
+
+/*
+  Navigate the arm to the given (x, y, z) coordinates.
+*/
 void navigateTo(float x, float y, float z) {
-  /*
-    Navigate the arm to the given coordinates.
-  */
   getAnglesFromCoords(x, y, z, angles);
   int theta_bg = (int) angles[0] * 57296 / 1000;  // Convert to degrees
   int theta_ba = (int) angles[1] * 57296 / 1000;  // Convert to degrees
@@ -75,12 +95,62 @@ void navigateTo(float x, float y, float z) {
   rotateServo(arm2Servo, theta_aa);
 }
 
-void move(String start, String end, bool capture) {
-  /*
-    Pick up the piece at the start square and move it
-    to the end square. If capture is true, pick
-    up and move the end piece out of the way first.
-  */
+
+/*
+  Sends move to the connected computer. Start square name is
+  sent first, then end square name.
+*/
+void sendMove(String start, String end) {
+  Serial.print(start);
+  Serial.print(end);
+}
+
+void openGripper() {}
+
+void closeGripper() {}
+
+
+/*
+  Returns the index into the boardCoordinates array for a 
+  given square. Returns -1 if invalid square is passed.
+*/
+int getSquareCoordinateIndex(String square) {
+  for (int i = 0; i < 64; i++) {
+    if (squares[i] == square) return i;
+  }
+  return -1;
+}
+
+
+/*
+  Pick up the piece at the start square and move it
+  to the end square. If capture is true, pick
+  up and move the end piece out of the way first.
+*/
+void makeMove(String start, String end, bool capture) {
+  int endCoordIndex = getSquareCoordinateIndex(end);
+  int startCoordIndex = getSquareCoordinateIndex(start);
+  float endX = boardCoordinates[endCoordIndex][0];
+  float endY = boardCoordinates[endCoordIndex][1];
+  float startX = boardCoordinates[startCoordIndex][0];
+  float startY = boardCoordinates[startCoordIndex][1];
+  if (capture) {
+    navigateTo(endX, endY, HOVER_Z);
+    openGripper();
+    navigateTo(endX, endY, PICK_UP_Z);
+    closeGripper();
+    navigateTo(endX, endY, HOVER_Z);
+    navigateTo(CAPTURE_X, CAPTURE_Y, HOVER_Z);
+    openGripper();
+  }
+  navigateTo(startX, startY, HOVER_Z);
+  openGripper();
+  navigateTo(startX, startY, PICK_UP_Z);
+  closeGripper();
+  navigateTo(startX, startY, HOVER_Z);
+  navigateTo(endX, endY, HOVER_Z);
+  navigateTo(endX, endY, PICK_UP_Z);
+  openGripper();
 }
 
 void setup() {
@@ -94,11 +164,12 @@ void setup() {
 void loop() {
   if (Serial.available()) {
     String move = Serial.readString();
-    //Serial.println(move);
     String start = move.substring(0, 2);
     String end = move.substring(3, 5);
     bool capture = move[2] == 'x';
-    Serial.print(start);
-    Serial.print(end);
+    makeMove(start, end, capture);
+  }
+  else {
+    
   }
 }
