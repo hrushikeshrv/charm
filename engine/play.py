@@ -138,8 +138,7 @@ def main():
             start, end = comms.get_move_from_arm(socket)
             if args.verbose:
                 print(f'Received move from arm - {start} to {end}')
-                print(start, end, coords_to_pos[start.upper()], coords_to_pos[end.upper()])
-            board.move_raw(coords_to_pos[start.upper()], coords_to_pos[end.upper()])
+            board.move_raw(2 ** coords_to_pos[start.upper()], 2 ** coords_to_pos[end.upper()])
             engine.setposition([start+end])
             
         side_to_move = 'white' if side_to_move == 'black' else 'black'
