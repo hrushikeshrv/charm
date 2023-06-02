@@ -1,4 +1,4 @@
-# Woozy
+# Charm
 Source code for a chess-playing robotic arm
 
 The chess engine is run on a computer by running the `play.py` file in `engine/`,
