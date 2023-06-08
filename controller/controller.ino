@@ -36,14 +36,16 @@ const int BASE_SERVO_PIN = 9;  // Base servo
 const int ARM1_SERVO_PIN = 10; // Arm 1 servo
 const int ARM2_SERVO_PIN = 11; // Arm 2 servo
 
-const float L1 = 400; // Length of first arm
-const float L2 = 400; // Length of second arm
-const float ARM_X = 0.0;  // The distance of the arm base from the square A1, along the x axis
-const float ARM_Y = 0.0;  // The distance of the arm base from the square A1, along the y axis
-const float HOVER_Z = 15.0; // The z distance of gripper base such that the gripper hovers above a piece
-const float PICK_UP_Z = 0;  // The z distance of the gripper base when we want to pick up a piece
-const float CAPTURE_X = 30.0; // The x coordinate where the arm should put the captured pieces
-const float CAPTURE_Y = 30.0; // The y coordinate where the arm should put the captured pieces
+const float L1 = 400;                   // Length of first arm
+const float L2 = 400;                   // Length of second arm
+const float ARM_X = 0.0;                // The distance of the arm base from the square A1, along the x axis
+const float ARM_Y = 0.0;                // The distance of the arm base from the square A1, along the y axis
+const float HOVER_Z = 15.0;             // The z distance of gripper base such that the gripper hovers above a piece
+const float PICK_UP_Z = 0;              // The z distance of the gripper base when we want to pick up a piece
+const float CAPTURE_X = 30.0;           // The x coordinate where the arm should put the captured pieces
+const float CAPTURE_Y = 30.0;           // The y coordinate where the arm should put the captured pieces
+const float MOTOR_WRITE_DELAY = 500;    // The amount of time to wait for the servo motors to finish rotation
+const float GRIPPER_TOGGLE_DELAY = 100;   // The amount of time to wait for the gripper to open and close
 
 Servo baseServo;
 Servo arm1Servo;
@@ -93,6 +95,7 @@ void navigateTo(float x, float y, float z) {
   rotateServo(baseServo, theta_bg);
   rotateServo(arm1Servo, theta_ba);
   rotateServo(arm2Servo, theta_aa);
+  delay(MOTOR_WRITE_DELAY);
 }
 
 
@@ -170,6 +173,7 @@ void loop() {
     makeMove(start, end, capture);
   }
   else {
-    
+    // Poll board to check if move was made
+    // If move was made, send it to the computer via sendMove()
   }
 }
