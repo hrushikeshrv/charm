@@ -8,13 +8,13 @@ import serial
 from chessengine.lookup_tables import pos_to_coords
 
 
-def get_socket(port: str, baud_rate: int):
+def get_socket(port: str, baud_rate: int, timeout: int = 120):
     """
     Creates a socket connection at the given port at the given baud rate,
     opens the socket, and returns the socket.
     """
     try:
-        socket = serial.Serial(port=port, baudrate=baud_rate, timeout=10)
+        socket = serial.Serial(port=port, baudrate=baud_rate, timeout=timeout)
     except serial.SerialException as e:
         print(f'Could not connect to {port}. Check the port name and baud rate and try again.')
         raise
@@ -36,7 +36,6 @@ def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int], capture: boo
         move_str = f'{_[0]}x{_[1]}'
     else:
         move_str = f'{_[0]},{_[1]}'
-    print(f'Writing {move_str.encode()} to socket')
     socket.write(move_str.encode())
 
 
