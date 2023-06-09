@@ -1,4 +1,4 @@
-chessengine==0.3.3
+chessengine>=0.3.3
 future==0.18.3
 iso8601==1.1.0
 pyserial==3.5
