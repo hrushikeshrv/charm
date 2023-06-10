@@ -32,9 +32,10 @@ void initializeBoardCoordinates(float armX, float armY, float squareWidth=5.0625
   }
 }
 
-const int BASE_SERVO_PIN = 9;  // Base servo
-const int ARM1_SERVO_PIN = 10; // Arm 1 servo
-const int ARM2_SERVO_PIN = 11; // Arm 2 servo
+const int BASE_SERVO_PIN = A0;          // Base servo
+const int ARM1_SERVO_PIN = A1;          // Arm 1 servo
+const int ARM2_SERVO_PIN = A2;          // Arm 2 servo
+const int GRIPPER_SERVO_PIN = A3;       // Gripper servo
 
 const float L1 = 400;                   // Length of first arm
 const float L2 = 400;                   // Length of second arm
@@ -45,14 +46,15 @@ const float PICK_UP_Z = 0;              // The z distance of the gripper base wh
 const float CAPTURE_X = 30.0;           // The x coordinate where the arm should put the captured pieces
 const float CAPTURE_Y = 30.0;           // The y coordinate where the arm should put the captured pieces
 const float MOTOR_WRITE_DELAY = 500;    // The amount of time to wait for the servo motors to finish rotation
-const float GRIPPER_TOGGLE_DELAY = 100;   // The amount of time to wait for the gripper to open and close
+const float GRIPPER_TOGGLE_DELAY = 100; // The amount of time to wait for the gripper to open and close
 
 Servo baseServo;
 Servo arm1Servo;
 Servo arm2Servo;
+Servo gripperServo;
 
-float x, y, z; // Cartesian coordinates
-float angles[3]; // Angles of robot arms 
+float x, y, z;                          // Cartesian coordinates
+float angles[3];                        // Angles of robot arms 
 
 
 /*
