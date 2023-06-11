@@ -6,16 +6,10 @@ To use Stockfish, you need to download the Stockfish executable on your machine.
 Once you have downloaded the executable, you can run the `engine/play.py` file normally, passing the `-p` option with the path to the Stockfish executable and the `-e` option as `stockfish`. The execution command is shown below -
 
 
-For windows -
-
 ```bash
-python engine/play.py -p COM6 -d 12 -p path/to/stockfish -e stockfish
+python engine/play.py -c arduinoPort -d 12 -p path/to/stockfish -e stockfish
 ```
 
-For Linux/MacOS -
+Replace `arduinoPort` with the name of the port to which your Arduino connects to your PC. For windows, this port is usually named `COMx`, where x is a number. For Linux/MacOS, this port is usually named `/dev/ttyUSBx`, where x is a number.
 
-```bash
-python engine/play.py -p dev/ttyUSB3 -d 12 -p path/to/stockfish -e stockfish
-```
-
-Take a look at the [usage](./usage.md) page for other options you can set on the arm.
+For a detailed description of all of the options used in the above command, as well as more options that are available to you, take a look at the [usage instructions](./usage.md).
