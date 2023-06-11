@@ -27,7 +27,7 @@ The arm can be divided into three distinct components that work together to play
 2. The arm
 3. The custom chess board
 
-These three components are glued together using some Python code running on your computer (specifically, the code in the [`engine/`](https://github.com/hrushikeshrv/charm/tree/main/engine) directory) and some C++ code running on an Arduino Uno microcontroller (specifically, the code in the [`controller/`](https://github.com/hrushikeshrv/charm/tree/main/controller) directory). The Arduino Uno is connected to your computer via its standard USB cable, and to the arm  as well as the chessboard via its GPIO pins. The result is a robotic arm that can sit across the table from you and play a complete game of chess without needing any assistance from you.
+These three components are glued together using some Python code running on your computer (specifically, the code in the [`engine/`](https://github.com/hrushikeshrv/charm/tree/main/engine) directory) and some C++ code running on an Arduino Uno microcontroller (specifically, the code in the [`controller/`](https://github.com/hrushikeshrv/charm/tree/main/controller) directory). The Arduino Uno is connected to your computer via its standard USB cable, and to the arm  as well as the chess board via its GPIO pins. The result is a robotic arm that can sit across the table from you and play a complete game of chess without needing any assistance from you.
 
 When it is the arm's turn to move, the chess engine is responsible for finding the best move to make in the current position. This step is done on the computer, since it is very computationally intensive, and an Arduino doesn't have enough power to find a good move in a reasonable amount of time. The engine then communicates the best found move to the Arduino Uno connected to your computer via a USB cable. The Arduino controls the movement of the arm and makes the move it received from the computer. When it is your turn to move, the custom built chessboard automatically detects the move you make and communicates it to the Arduino. The Arduino forwards this move to the chess engine, which then comes up with a move in response, and the game loop continues.
 
@@ -55,6 +55,7 @@ The simplest way to manufacture the parts for the arm is to get them 3D printed.
 For assembly instructions, refer to the [assembly instructions](./assemble.md) page.
 
 ## The Chess Board
+<!-- Add screenshots of the chess board -->
 The custom chess board uses magnets to detect the position of pieces on the board, and communicates this state of the board to the Arduino. It can be built by customizing any standard chess board with a few electronic components. I used a large "mat" style chess board, as opposed to a rigid wooden board. 
 
 Since the gripper of the robotic arm is made specific to a particular chess board, make sure that you use a chess board where one square has a side of around 5 cm. If you want to make a chess board of dimensions significantly larger or smaller than 5 cm, you will have to modify the gripper mechanism of the arm to match those dimensions, which may be a complicated process. 
