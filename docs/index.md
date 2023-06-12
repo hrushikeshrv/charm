@@ -78,3 +78,4 @@ For assembly instructions, refer to the [assembly instructions](./assemble.md) p
 ## The Glue
 
 The three components - the chesse engine, the arm, and the chess board - communicate with each other using some Python code running on your computer, and some C++ code running on your Arduino Uno. The Python code running on your computer is responsible for running the chess engine, getting the best move from the engine, coordinating actions between the human player and the computer, and communicating with the Arduino.
+
