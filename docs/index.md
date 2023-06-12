@@ -62,12 +62,14 @@ Since the gripper of the robotic arm is made specific to a particular chess boar
 
 In order to detect the position of pieces, the board uses [reed switches](https://en.wikipedia.org/wiki/Reed_switch) attached to the bottom of each square. A small circular ferrous magnet is attached to the bottom of each piece (neodymium magnets may be too strong for the switch), such that when a piece is placed on a square, the reed switch corresponding to that square is closed.
 
-Since there are 64 reed switches, an Arduino Uno doesn't have nearly enough inputs to read all the reed switches at the same time. Instead, they are connected to 8 x 8-bit parallel-in serial-out shift registers, each of which converts the parallel input of 8 reed switches into one byte of serial data. This means that only 8 PISO registers are connected to the Arduino, and we can read the states of all 64 reed switches.
+Since there are 64 reed switches, an Arduino Uno doesn't have nearly enough inputs to read all the reed switches at the same time. Instead, they are connected to 8 x 8-bit parallel-in serial-out shift registers, each of which converts the parallel input of 8 reed switches into one byte of serial data. This means that only 8 PISO registers are connected to the Arduino, and we can read the states of all 64 reed switches in groups of 8 instead of individually.
+
+Once it is your turn, the Arduino continuously monitors the state of all the reed switches through the 8 shift registers. Once it detects that the state of exactly 2 reed switches has changed, it compares the previous state to the current, finds out which squares were changed, and sends the identified move to the computer. If it detects that more than two reed switches changed state for some reason, it sends an error message to the computer, so that it can inform the user.
 
 The chess board needs the following components - 
 
 1. 1 x large-sized chess board (1 square of side 5 cm)
-2. 64 x Reed switches
+2. 64 x reed switches
 3. 8 x PISO shift registers (e.g. 74HC165)
 4. 64 x small circular ferrous magnets
 
