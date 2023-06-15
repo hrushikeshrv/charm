@@ -1,4 +1,3 @@
-# Charm
 This document describes how to work with the chess-playing arm and how to recreate it yourself. It provides links to the following resources -
 
 - CAD (.stp) files that were used to design the parts for the arm

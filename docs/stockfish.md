@@ -1,4 +1,3 @@
-# Using Stockfish
 Instead of using the `chessengine` python module for searching for moves to make you can make the arm use Stockfish to find moves to make instead.
 
 To use Stockfish, you need to download the Stockfish executable on your machine. You can find the latest Stockfish executable for download on the [official Stockfish website](https://stockfishchess.org/download/).
