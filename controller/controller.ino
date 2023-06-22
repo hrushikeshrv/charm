@@ -117,7 +117,7 @@ void closeGripper() {}
 
 /*
   Returns the index into the boardCoordinates array for a 
-  given square. Returns -1 if invalid square is passed.
+  given square. Returns -1 if an invalid square is passed.
 */
 int getSquareCoordinateIndex(String square) {
   for (int i = 0; i < 64; i++) {

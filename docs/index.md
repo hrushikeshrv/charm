@@ -1,3 +1,4 @@
+# Charm
 This document describes how to work with the chess-playing arm and how to recreate it yourself. It provides links to the following resources -
 
 - CAD (.stp) files that were used to design the parts for the arm
@@ -76,5 +77,8 @@ For assembly instructions, refer to the [assembly instructions](./assemble.md) p
 
 ## The Glue
 
-The three components - the chesse engine, the arm, and the chess board - communicate with each other using some Python code running on your computer, and some C++ code running on your Arduino Uno. The Python code running on your computer is responsible for running the chess engine, getting the best move from the engine, coordinating actions between the human player and the computer, and communicating with the Arduino.
+The three components - the chess engine, the arm, and the chess board - communicate with each other using some Python code running on your computer, and some C++ code running on your Arduino Uno. The Python code running on your computer is responsible for running the chess engine, getting the best move, coordinating actions between the human player and the computer, and communicating with the Arduino.
 
+The Arduino code is only responsible for controlling the arm, and for communicating with the chess board to detect which moves were made.
+
+Once you have assembled the arm, the chess board, and built the circuit using the schematics, take a look at the [usage](./usage.md) page to start a game of chess with the arm.
