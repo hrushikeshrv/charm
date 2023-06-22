@@ -16,6 +16,7 @@ In order to recreate this project, you will need a basic working knowledge of -
 1. Python programming, running Python programs
 2. Building and uploading `.ino` files to an Arduino microcontroller
 3. Reading circuit schematics and thus implementing the described circuits
+4. Using a command prompt/terminal
 
 If you are referring to this document to recreate this project and find any errors, improvements, or find that any part of the document needs clarification, please feel free to [open an issue](https://github.com/hrushikeshrv/charm/issues).
 
