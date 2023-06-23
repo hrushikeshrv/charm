@@ -32,10 +32,10 @@ void initializeBoardCoordinates(float armX, float armY, float squareWidth=5.0625
   }
 }
 
-const int BASE_SERVO_PIN = A0;          // Base servo
-const int ARM1_SERVO_PIN = A1;          // Arm 1 servo
-const int ARM2_SERVO_PIN = A2;          // Arm 2 servo
-const int GRIPPER_SERVO_PIN = A3;       // Gripper servo
+const int BASE_SERVO_PIN = A0;          // Servo controlling base rotation
+const int ARM1_SERVO_PIN = A1;          // Servo connecting Arm 1 to the base
+const int ARM2_SERVO_PIN = A2;          // Servo connecting Arm 1 to Arm 2
+const int GRIPPER_SERVO_PIN = A3;       // Servo controlling the gripper screw
 
 const float L1 = 400;                   // Length of first arm
 const float L2 = 400;                   // Length of second arm
