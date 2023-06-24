@@ -66,7 +66,22 @@ The current design needs at least 14 GPIO pins, excluding the Tx and Rx GPIO pin
 
 You can use the [circuit schematic]() to help.
 
-**Step 2** - Build & Upload  
-Open the [`controller/controller.ino`](https://github.com/hrushikeshrv/charm/tree/main/controller) file in the Arduino IDE. Select your Arduino board, and click the build and upload button.
+**Step 2** - Modify Sketch  
+The Arduino code controls the arm's movement, for which it needs to know the dimensions of the chess board. In particular, it needs to know how big one square of the chess board is. 
+
+Open the [`controller/controller.ino`](https://github.com/hrushikeshrv/charm/tree/main/controller) file in the Arduino IDE, and look for the `SQUARE_WIDTH` variable. Set it to be the width of one square of the chess board you are using (measured in centimeters).
+
+The arm is designed for a standard size chess board, where one square has a side of around 5 cm. If you are using a board with side _smaller_ than 5 cm, you may need to modify the design of the arm's gripper, since it may be too big for the board and may knock pieces over when it makes a move. If your board has a square  width larger than 5 cm, the gripper should be fine.
+
+You will also need to tell the arm where it is positioned relative to the chess board. Measure the distance `armX` and `armY` as shown in the diagram below -
+
+<img src="./media/arm-position-measurement.png" style="text-align: center;">
+
+Look for the variable `ARM_X` in the sketch and set it to the value of the measured `armX` distance, and look for the variable `ARM_Y` in the sketch and set it to the value of the measured `armY` distance.
+
+You may need to test the accuracy of the arm and tweak these values a few times.
+
+**Step 3** - Build & Upload  
+Select your Arduino board, and click the build button and then the upload button.
 
 That's it for the setup! If everything worked correctly, you are ready to play a game with the arm. Take a look at the [usage](./usage.md) page to get started.
