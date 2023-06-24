@@ -17,7 +17,15 @@ In order to recreate this project, you will need a basic working knowledge of -
 3. Reading circuit schematics and thus implementing the described circuits
 4. Using a command prompt/terminal
 
-If you are referring to this document to recreate this project and find any errors, improvements, or find that any part of the document needs clarification, please feel free to [open an issue](https://github.com/hrushikeshrv/charm/issues).
+To recreate this project, read this document in the order given below -
+
+1. This page
+2. [Assembly/Hardware Setup](./assemble.md)
+3. [Software Setup](./software-setup.md)
+4. [Usage](./usage.md)
+5. [Stockfish](./stockfish.md)
+
+If you find any errors, improvements, or find that any part of the document needs clarification, please feel free to [open an issue](https://github.com/hrushikeshrv/charm/issues). This document and this project is licensed under the GPL v3.0 License, which can be found [here](https://github.com/hrushikeshrv/charm/blob/main/LICENSE).
 
 # How it Works
 <!-- Add a block diagram of the system -->

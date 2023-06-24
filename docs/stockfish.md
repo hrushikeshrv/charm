@@ -1,7 +1,7 @@
 # Stockfish
 Instead of using the `chessengine` python module for searching for moves to make you can make the arm use Stockfish to find moves to make instead.
 
-To use Stockfish, you will need to download the Stockfish executable on your machine. You can find the latest Stockfish executable for download on the [official Stockfish website](https://stockfishchess.org/download/). Once you have the Stockfish executable, copy the path to it. It's usually convenient to just keep the executable in the root directory of this project, but any location is fine, as long as you can access it.
+To use Stockfish, you will need to download the Stockfish executable on your machine. You can find the latest Stockfish executable on the [official Stockfish website](https://stockfishchess.org/download/). Once you have the Stockfish executable, copy the path to it. It's usually convenient to just keep the executable in the root directory of this project, but any location is fine, as long as you can access it.
 
 You can then run the `engine/play.py` file normally, passing the `-p` option with the path to the Stockfish executable and the `-e` option as `stockfish`. The execution command is shown below -
 
