@@ -1,12 +1,8 @@
 # Charm
 Source code for a chess-playing robotic arm
 
-The chess engine is run on a computer by running the `engine/play.py` file,
-and the robotic arm is controlled by the Arduino code in `controller/`.
+<!-- Add screenshots of the final 3D model -->
+<!-- Add photos of the arm irl -->
 
-## Getting Started
-Install the requirements by running
-
-```bash
-pip install -r requirements.txt
-```
+Check the [docs](https://hrus.in/charm) for a description of the project
+as well as instructions on how to recreate this project yourself.
