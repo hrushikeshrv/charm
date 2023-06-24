@@ -13,7 +13,7 @@ String squares[] = {
   "H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8",
 }
 float boardCoordinates[64][2];
-void initializeBoardCoordinates(float armX, float armY, float squareWidth=5.0625) {
+void initializeBoardCoordinates(float armX, float armY, float squareWidth) {
   /*
     Generates the (x, y) coordinates for all squares of the boardCoordinates
     given the width of one square of the boardCoordinates. The generated
@@ -37,6 +37,7 @@ const int ARM1_SERVO_PIN = A1;          // Servo connecting Arm 1 to the base
 const int ARM2_SERVO_PIN = A2;          // Servo connecting Arm 1 to Arm 2
 const int GRIPPER_SERVO_PIN = A3;       // Servo controlling the gripper screw
 
+const float SQUARE_WIDTH = 5.0625;      // The width of one square of the chess board (in centimeters)
 const float L1 = 400;                   // Length of first arm
 const float L2 = 400;                   // Length of second arm
 const float ARM_X = 0.0;                // The distance of the arm base from the square A1, along the x axis
@@ -160,7 +161,7 @@ void makeMove(String start, String end, bool capture) {
 
 void setup() {
   Serial.begin(9600);
-  initializeBoardCoordinates(ARM_X, ARM_Y);
+  initializeBoardCoordinates(ARM_X, ARM_Y, SQUARE_WIDTH);
   baseServo.attach(BASE_SERVO_PIN);
   arm1Servo.attach(ARM1_SERVO_PIN);
   arm2Servo.attach(ARM2_SERVO_PIN);
