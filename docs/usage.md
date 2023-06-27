@@ -19,20 +19,20 @@ python engine/play.py -c arduinoPort
 
 Replace `arduinoPort` with the name of the port you have connected your Arduino to. For windows, this port is usually named `COMx`, where x is a number. For Linux/MacOS, this port is usually named `/dev/ttyUSBx`, where x is a number.
 
-For a complete description of the options available to you when running this script, see the [play.py doc](#play-script-options). You can also run 
+For a complete description of the options available to you when running this script, see the [play.py doc](#script-options). You can also run 
 
 ```bash
 python engine/play.py --help
 ```
 
-## Play Script Options
+## Script Options
 The Python file `engine/play.py` is used to start a game with the arm. You have the following options you can pass the script to customize behaviour -
 
 |Option|Type|Default|Required|Description|
 |------|----|-------|--------|-----------|
 |`-c`, `--port`|`str`|_not set_|Yes|Set the port name that the Arduino is connected to|
-|`-e`, `--engine`|`str`|`"default"`|No|The chess engine to use to find moves. Can be `"default"` for using `chessengine`, or `"stockfish"` for use Stockfish.|
-|`-d`, `--depth`|`int`|`4`|No|Set the search depth. Can be an integer between 1 and 15 (inclusive). The recommended search depth while using the default engine is <= 5.
+|`-e`, `--engine`|`str`|`"default"`|No|The chess engine to use to find moves. Can be `"default"` for using `chessengine`, or `"stockfish"` for using Stockfish.|
+|`-d`, `--depth`|`int`|`4`|No|Set the search depth. Can be an integer between 1 and 15 (inclusive). The recommended search depth while using the default engine is <= 5. This setting does not apply when using Stockfish.
 |`-p`, `--path`|`str`|`"stockfish/stockfish.exe"`|No|Set the path to the Stockfish executable.|
 |`-b`, `--baud-rate`|`int`|`9600`|No|Set the baud rate for communication with the Arduino. You will only need to change this option if you modify the baud rate in the `controller/controller.ino` sketch.|
 |`-v`, `--verbose`|`bool`|`False`|No|Print verbose debugging output to stdout.|
