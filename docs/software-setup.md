@@ -62,9 +62,9 @@ Connect your Arduino Uno to your computer.
 
 The Arduino code included in this repository is specific to an Arduino Uno. If you want to use another Arduino model with the arm, you should make sure that your model has a sufficient number of GPIO pins to be able to interface with all of the electronic components the arm needs.
 
-The current design needs at least 14 GPIO pins, excluding the Tx and Rx GPIO pins. Moreover, if you use another Arduino model instead of the Uno, you will need to update the pin numbers assigned in the [`controller/controller.ino`](https://github.com/hrushikeshrv/charm/tree/main/controller) file with the pin numbers you are using for each component.
+The current design needs at least 14 GPIO pins, excluding the Tx and Rx GPIO pins. Moreover, if you use another Arduino model instead of the Uno, you will need to update the pin numbers assigned in the [`controller/controller.ino`](https://github.com/hrushikeshrv/charm/tree/main/controller) file with the pin numbers you are using for each component. The pins are configured as `const int`'s near the begining of the sketch, and there are comments describing which electronic component each pin is connected to.
 
-You can use the [circuit schematic](./data/schematics/chessbot.kicad_sch) to help. The pins are configured as `const int`'s near the begining of the sketch, and there are comments describing which electronic component each pin is connected to.
+You can use the [circuit schematic](https://github.com/hrushikeshrv/charm/tree/main/data/schematics) to help. 
 
 **Step 2** - Modify Sketch  
 The Arduino code controls the arm's movement, for which it needs to know the dimensions of the chess board. In particular, it needs to know how big one square of the chess board is. 

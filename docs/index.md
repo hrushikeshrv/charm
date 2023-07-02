@@ -4,7 +4,7 @@ This document describes how to work with the chess-playing arm and how to recrea
 - CAD (.stp) files that were used to design the parts for the arm
 - [Documentation for `chessengine`](https://chessengine.readthedocs.io/en/latest), the chess engine built specifically for this project
 - [Instructions on how to use stockfish](./stockfish.md) with the arm instead of `chessengine`
-- [Circuit schematic](./data/schematics/chessbot.kicad_sch) for the arm, including a custom chess board that detects moves made and communicates with the Arduino
+- [Circuit schematic](https://github.com/hrushikeshrv/charm/tree/main/data/schematics) for the arm, including a custom chess board that detects moves made and communicates with the Arduino
 - [Usage instructions](./usage.md) for starting a game with the arm
 - [Assembly instructions](./assemble.md) that provide step-by-step instructions on how to build the arm once you have all the components
 
