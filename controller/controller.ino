@@ -29,7 +29,7 @@ const float PICK_UP_Z = 0;              // The z distance of the gripper base wh
 const float CAPTURE_X = 300;            // The x coordinate where the arm should put the captured pieces (in mm)
 const float CAPTURE_Y = 300;            // The y coordinate where the arm should put the captured pieces (in mm)
 const float MOTOR_WRITE_DELAY = 500;    // The amount of time to wait for the servo motors to finish rotation (in ms)
-const float GRIPPER_TOGGLE_DELAY = 100; // The amount of time to wait for the gripper to open and close (in ms)
+const float GRIPPER_TOGGLE_DELAY = 500; // The amount of time to wait for the gripper to open and close (in ms)
 
 Servo baseServo;                        // The servo connected at the base of the robot
 Servo arm1Servo;                        // The servo connected to the first arm (connecting arm to base)
@@ -93,17 +93,17 @@ void rotateServo(Servo motor, int angle) {
 void navigateTo(float x, float y, float z) {
   getAnglesFromCoords(x, y, z);
   // Convert radian to degrees
-  int theta_bg = (int) angles[0] * 57296 / 1000;
-  int theta_ba = (int) angles[1] * 57296 / 1000;
-  int theta_aa = (int) angles[2] * 57296 / 1000;
+  int theta_bg = (int) (angles[0] * 57296 / 1000);
+  int theta_ba = (int) (angles[1] * 57296 / 1000);
+  int theta_aa = (int) (angles[2] * 57296 / 1000);
 
-  Serial.println("Angles for coordinates ");
-  Serial.println(x);
-  Serial.println(y);
-  Serial.println(z);
-  Serial.println(theta_bg);
-  Serial.println(theta_ba);
-  Serial.println(theta_aa);
+  Serial.print("Navigating to (");
+  Serial.print(x);
+  Serial.print(", ");
+  Serial.print(y);
+  Serial.print(", ");
+  Serial.print(z);
+  Serial.println(")");
 
   rotateServo(baseServo, theta_bg);
   rotateServo(arm1Servo, theta_ba);
@@ -124,10 +124,16 @@ void sendMove(String start, String end) {
 
 void openGripper() {
   Serial.println("Opening gripper");
+  // gripperServo.write(180);
+  delay(GRIPPER_TOGGLE_DELAY);
+  // gripperServo.write(90);
 }
 
 void closeGripper() {
   Serial.println("Closing gripper");
+  // gripperServo.write(0);
+  delay(GRIPPER_TOGGLE_DELAY);
+  // gripperServo.write(90);
 }
 
 
@@ -166,23 +172,23 @@ void makeMove(String start, String end, bool capture) {
   Serial.print(", ");
   Serial.println(endY);
   
-  // if (capture) {
-  //   navigateTo(endX, endY, HOVER_Z);
-  //   openGripper();
-  //   navigateTo(endX, endY, PICK_UP_Z);
-  //   closeGripper();
-  //   navigateTo(endX, endY, HOVER_Z);
-  //   navigateTo(CAPTURE_X, CAPTURE_Y, HOVER_Z);
-  //   openGripper();
-  // }
+  if (capture) {
+    navigateTo(endX, endY, HOVER_Z);
+    openGripper();
+    navigateTo(endX, endY, PICK_UP_Z);
+    closeGripper();
+    navigateTo(endX, endY, HOVER_Z);
+    navigateTo(CAPTURE_X, CAPTURE_Y, HOVER_Z);
+    openGripper();
+  }
   navigateTo(startX, startY, HOVER_Z);
-  // openGripper();
-  // navigateTo(startX, startY, PICK_UP_Z);
-  // closeGripper();
-  // navigateTo(startX, startY, HOVER_Z);
-  // navigateTo(endX, endY, HOVER_Z);
-  // navigateTo(endX, endY, PICK_UP_Z);
-  // openGripper();
+  openGripper();
+  navigateTo(startX, startY, PICK_UP_Z);
+  closeGripper();
+  navigateTo(startX, startY, HOVER_Z);
+  navigateTo(endX, endY, HOVER_Z);
+  navigateTo(endX, endY, PICK_UP_Z);
+  openGripper();
 }
 
 void setup() {
@@ -191,6 +197,7 @@ void setup() {
   baseServo.attach(BASE_SERVO_PIN);
   arm1Servo.attach(ARM1_SERVO_PIN);
   arm2Servo.attach(ARM2_SERVO_PIN);
+  gripperServo.attach(GRIPPER_SERVO_PIN);
 }
 
 void loop() {
