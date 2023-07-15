@@ -1,7 +1,7 @@
 # Charm
 This document describes how to work with the chess-playing arm and how to recreate it yourself. It provides links to the following resources -
 
-- CAD (.stp) files that were used to design the parts for the arm
+- [CAD files](https://github.com/hrushikeshrv/charm/tree/main/data/cad) that were used to design the parts for the arm
 - [Documentation for `chessengine`](https://chessengine.readthedocs.io/en/latest), the chess engine built specifically for this project
 - [Instructions on how to use stockfish](./stockfish.md) with the arm instead of `chessengine`
 - [Circuit schematic](https://github.com/hrushikeshrv/charm/tree/main/data/schematics) for the arm, including a custom chess board that detects moves made and communicates with the Arduino
