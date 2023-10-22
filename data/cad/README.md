@@ -1,7 +1,7 @@
 # Charm CAD Files
 This directory provides the 3D models that I used to 3D print the parts for this project. There are different folders for `.stp` files and for `.ipt` files (since I used Autodesk Inventor to design the parts for this project).
 
-The `step/` directory contains all the parts that you will need to get 3D printed (or manufactured some other way if you choose), and the `inventor` directory contains the original Autodesk Inventor part files as well as the assembly files that show you how to assemble the arm. 
+The `step/` directory contains all the parts that you will need to get 3D printed (or manufactured some other way if you choose), and the `inventor/` directory contains the original Autodesk Inventor part files as well as the assembly files that show you how to assemble the arm. 
 
 <!-- TODO - also provide the assembly files as .stp in the inventor/ directory -->
 
