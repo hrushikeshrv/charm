@@ -27,7 +27,7 @@ def handle_exit(f):
 
 @handle_exit
 def main():
-    parser = argparse.ArgumentParser(prog='woozy', description='A chess-playing robotic arm')
+    parser = argparse.ArgumentParser(prog='charm', description='A chess-playing robotic arm')
     parser.add_argument(
         '-e', 
         '--engine', 
