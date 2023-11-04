@@ -74,14 +74,17 @@ void loop() {
       shutDownArm();
       return;
     } 
-    Serial.println("Move is " + move);
-    String start = move.substring(0, 2);
-    String end = move.substring(3, 5);
-    bool capture = move[2] == 'x';
-    // baseServoAngle = rotateServo(baseServo, baseServoAngle, angle);
-    // baseArmServoAngle = rotateServo(baseArmServo, baseArmServoAngle, angle);
-    // armArmServoAngle = rotateServo(armArmServo, armArmServoAngle, angle);
-    // gripperPitchServoAngle = rotateServo(gripperPitchServo, gripperPitchServoAngle, angle);
+    // Serial.println("Move is " + move);
+    // String start = move.substring(0, 2);
+    // String end = move.substring(3, 5);
+    // bool capture = move[2] == 'x';
+    int angle = move.toInt();
+    Serial.print("Moving servos to angle ");
+    Serial.println(angle);
+    baseServoAngle = rotateServo(baseServo, baseServoAngle, angle);
+    baseArmServoAngle = rotateServo(baseArmServo, baseArmServoAngle, angle);
+    armArmServoAngle = rotateServo(armArmServo, armArmServoAngle, angle);
+    gripperPitchServoAngle = rotateServo(gripperPitchServo, gripperPitchServoAngle, angle);
   }
 }
 
@@ -105,6 +108,34 @@ int rotateServo(Servo servo, int startAngle, int endAngle) {
 }
 
 /*
+  Moves a piece from the passed start square to the end
+  square. If a piece is present on the end square, captures
+  it first.
+*/
+void makeMove(String start, String end, bool capture) {
+  int (*startHoverPos)[4] = &hoverAngles[getSquareIndex(start)];
+  int (*startGrabPos)[4] = &grabbingAngles[getSquareIndex(start)];
+  int (*endHoverPos)[4] = &hoverAngles[getSquareIndex(end)];
+  int (*endGrabPos)[4] = &grabbingAngles[getSquareIndex(end)];
+
+  if (capture) {
+    setArmPosition(endHoverPos[0], endHoverPos[1], endHoverPos[2], endHoverPos[3]);
+    setArmPosition(endGrabPos[0], endGrabPos[1], endGrabPos[2], endGrabPos[3]);
+    closeGripper();
+    setArmPosition(captureAngles[0], captureAngles[1], captureAngles[2], captureAngles[3]);
+    openGripper();
+  }
+
+  setArmPosition(startHoverPos[0], startHoverPos[1], startHoverPos[2], startHoverPos[3]);
+  setArmPosition(startGrabPos[0], startGrabPos[1], startGrabPos[2], startGrabPos[3]);
+  closeGripper();
+
+  setArmPosition(endHoverPos[0], endHoverPos[1], endHoverPos[2], endHoverPos[3]);
+  setArmPosition(endGrabPos[0], endGrabPos[1], endGrabPos[2], endGrabPos[3]);
+  openGripper();
+}
+
+/*
   Sets the arm's position by accepting end position angles 
   for all servos and rotating all servos at once instead of one
   servo at a time
@@ -121,7 +152,7 @@ void setArmPosition(int baseAngle, int baseArmAngle, int armArmAngle, int grippe
 
   int baseDirection = baseAngle > baseServoAngle ? 1 : -1;
   int baseArmDirection = baseArmAngle > baseArmServoAngle ? 1 : -1;
-  int armArmDireciton = armArmAngle > armArmServoAngle ? 1 : -1;
+  int armArmDirection = armArmAngle > armArmServoAngle ? 1 : -1;
   int gripperPitchDirection = gripperPitchAngle > gripperPitchServoAngle ? 1 : -1;
 
   bool baseMoving = baseAngle != baseServoAngle;
