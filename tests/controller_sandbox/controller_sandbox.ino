@@ -61,30 +61,29 @@ void setup() {
   gripperPitchServo.attach(GRIPPER_PITCH_SERVO_PIN);
   gripperServo.attach(GRIPPER_SERVO_PIN);
 
-  baseServoAngle = rotateServo(baseServo, baseServoAngle, 180);
-  
-  armArmServoAngle = rotateServo(armArmServo, armArmServoAngle, 90);
+  // baseServoAngle = rotateServo(baseServo, baseServoAngle, 180);
+  // armArmServoAngle = rotateServo(armArmServo, armArmServoAngle, 90);
+  resetArmPosition();
 }
 
 void loop() {
   if (Serial.available()) {
     String move = Serial.readString();
     move.trim();
-    if (move == 'q') {
-      shutDownArm();
-      return;
+    if (move == "q") {
+      resetArmPosition();
     } 
     // Serial.println("Move is " + move);
     // String start = move.substring(0, 2);
     // String end = move.substring(3, 5);
     // bool capture = move[2] == 'x';
-    int angle = move.toInt();
-    Serial.print("Moving servos to angle ");
-    Serial.println(angle);
-    baseServoAngle = rotateServo(baseServo, baseServoAngle, angle);
-    baseArmServoAngle = rotateServo(baseArmServo, baseArmServoAngle, angle);
-    armArmServoAngle = rotateServo(armArmServo, armArmServoAngle, angle);
-    gripperPitchServoAngle = rotateServo(gripperPitchServo, gripperPitchServoAngle, angle);
+    else {
+      int angle = move.toInt();
+      Serial.print("Moving servos to angle ");
+      Serial.println(angle);
+      // setArmPosition(angle, angle, angle, angle);
+      gripperPitchServoAngle = rotateServo(gripperPitchServo, gripperPitchServoAngle, angle);
+    }
   }
 }
 
@@ -149,6 +148,7 @@ void setArmPosition(int baseAngle, int baseArmAngle, int armArmAngle, int grippe
   };
   int max_angle = get_max(diffs, 4);
   int rotationDelay = ROTATION_DURATION / max_angle;
+  rotationDelay = min(rotationDelay, 10);
 
   int baseDirection = baseAngle > baseServoAngle ? 1 : -1;
   int baseArmDirection = baseArmAngle > baseArmServoAngle ? 1 : -1;
@@ -168,17 +168,25 @@ void setArmPosition(int baseAngle, int baseArmAngle, int armArmAngle, int grippe
     if (gripperPitchAngle == gripperPitchServoAngle) gripperMoving = false;
     movingServos = baseMoving || arm1Moving || arm2Moving || gripperMoving;
     
-    baseServoAngle += baseDirection;
-    baseServo.write(baseServoAngle);
+    if (baseMoving) {
+      baseServoAngle += baseDirection;
+      baseServo.write(baseServoAngle % 181);
+    }
+    
+    if (arm1Moving) {
+      baseArmServoAngle += baseArmDirection;
+      baseArmServo.write(baseArmServoAngle % 181);
+    }
 
-    baseArmServoAngle += baseArmDirection;
-    baseArmServo.write(baseArmServoAngle);
+    if (arm2Moving) {
+      armArmServoAngle += armArmDirection;
+      armArmServo.write(armArmServoAngle % 181);
+    }
 
-    armArmServoAngle += armArmDirection;
-    armArmServo.write(armArmServoAngle);
-
-    gripperPitchServoAngle += gripperPitchDirection;
-    gripperPitchServo.write(gripperPitchServoAngle);
+    if (gripperMoving) {
+      gripperPitchServoAngle += gripperPitchDirection;
+      gripperPitchServo.write(gripperPitchServoAngle % 181);
+    }
 
     delay(rotationDelay);
   }
@@ -200,9 +208,9 @@ void openGripper() {}
   Make sure this function is called every time before the arm shuts 
   down, or the servos behave unreliably when the arm wakes up.
 */
-void shutDownArm() {
-  rotateServo(baseServo, baseServoAngle, 180);
-  rotateServo(armArmServo, armArmServoAngle, 90);
+void resetArmPosition() {
+  Serial.println("Resetting arm position");
+  setArmPosition(90, 110, 175, 120);
 }
 
 /*
