@@ -64,12 +64,15 @@ void setup() {
   // baseServoAngle = rotateServo(baseServo, baseServoAngle, 180);
   // armArmServoAngle = rotateServo(armArmServo, armArmServoAngle, 90);
   resetArmPosition();
+  setArmPosition(0, 0, 0, 0);
+  resetArmPosition();
 }
 
 void loop() {
   if (Serial.available()) {
     String move = Serial.readString();
     move.trim();
+    int currentServo = 1;
     if (move == "q") {
       resetArmPosition();
     } 
@@ -77,12 +80,38 @@ void loop() {
     // String start = move.substring(0, 2);
     // String end = move.substring(3, 5);
     // bool capture = move[2] == 'x';
+    else if (move == "1") currentServo = 1;
+    else if (move == "2") currentServo = 2;
+    else if (move == "3") currentServo = 3;
+    else if (move == "4") currentServo = 4; 
     else {
       int angle = move.toInt();
-      Serial.print("Moving servos to angle ");
+      Serial.print("Moving ");
+      Serial.print(currentServo);
+      Serial.print(" to angle ");
       Serial.println(angle);
-      // setArmPosition(angle, angle, angle, angle);
-      gripperPitchServoAngle = rotateServo(gripperPitchServo, gripperPitchServoAngle, angle);
+      switch (currentServo) {
+        case 1:
+          setArmPosition(angle, baseArmServoAngle, armArmServoAngle, gripperPitchServoAngle);
+          break;
+        case 2:
+          setArmPosition(baseServoAngle, angle, armArmServoAngle, gripperPitchServoAngle);
+          break;
+        case 3:
+          setArmPosition(baseServoAngle, baseArmServoAngle, angle, gripperPitchServoAngle);
+          break;
+        case 4:
+          setArmPosition(baseServoAngle, baseArmServoAngle, armArmServoAngle, angle);
+          break;
+      }
+      Serial.print("Current angles are - ");
+      Serial.print(baseServoAngle);
+      Serial.print(", ");
+      Serial.print(baseArmServoAngle);
+      Serial.print(", ");
+      Serial.print(armArmServoAngle);
+      Serial.print(", ");
+      Serial.println(gripperPitchServoAngle);
     }
   }
 }
