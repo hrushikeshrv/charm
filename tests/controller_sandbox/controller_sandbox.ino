@@ -3,6 +3,7 @@
 // The (maximum) number of miliseconds a servo should take to move from
 // its start position to end position (independant of the angle it needs to move)
 const int ROTATION_DURATION = 1200;   // 1.2 seconds
+// const int ROTATION_DURATION = 2500;     // 2.5 seconds during development because I don't want to burn any more servos
 
 const int BASE_SERVO_PIN = 3;       // D3
 const int BASE_ARM_SERVO_PIN = 5;   // D5
@@ -25,8 +26,8 @@ int gripperServoAngle = 0;
 // Stores the servo angles for hovering above each square of the board
 // in the format - {base angle, base-arm angle, arm-arm angle, gripper pitch}
 const int hoverAngles[64][4] = {
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
+  {84, 36, 8, 94}, {80, 47, 28, 100}, {76, 56, 39, 92}, {71, 64, 58, 98}, {68, 74, 76, 105}, {64, 82, 89, 115}, {61, 89, 100, 107}, {50, 99, 116, 117},   // A1 to A8
+  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},   // B1 to B8
   {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
   {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
   {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
@@ -51,7 +52,7 @@ const int grabbingAngles[64][4] = {
 // The coordinates for the position where captured pieces should be
 // dropped in the format -{base angle, base-arm angle, arm-arm angle, gripper pitch}
 const int captureAngles[4] = {0, 0, 0, 0};
-
+int currentServo = 1;
 
 void setup() {
   Serial.begin(9600);
@@ -72,7 +73,7 @@ void loop() {
   if (Serial.available()) {
     String move = Serial.readString();
     move.trim();
-    int currentServo = 1;
+    
     if (move == "q") {
       resetArmPosition();
     } 
@@ -113,6 +114,8 @@ void loop() {
       Serial.print(", ");
       Serial.println(gripperPitchServoAngle);
     }
+    Serial.print("Current servo is ");
+    Serial.println(currentServo);
   }
 }
 
@@ -177,7 +180,7 @@ void setArmPosition(int baseAngle, int baseArmAngle, int armArmAngle, int grippe
   };
   int max_angle = get_max(diffs, 4);
   int rotationDelay = ROTATION_DURATION / max_angle;
-  rotationDelay = min(rotationDelay, 10);
+  rotationDelay = min(rotationDelay, 20);
 
   int baseDirection = baseAngle > baseServoAngle ? 1 : -1;
   int baseArmDirection = baseArmAngle > baseArmServoAngle ? 1 : -1;
@@ -239,7 +242,7 @@ void openGripper() {}
 */
 void resetArmPosition() {
   Serial.println("Resetting arm position");
-  setArmPosition(90, 110, 175, 120);
+  setArmPosition(90, 110, 175, 180);
 }
 
 /*
