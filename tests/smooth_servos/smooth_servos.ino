@@ -6,9 +6,9 @@ const float MAX_PULSE_WIDTH = 2350;
 const float FREQUENCY = 50;
 
 const float MOVE_SETTLE_DELAY = 300;
-// The factor for smoothening the arm's movement. Should be greater than 0 and less than 1.
+// The smoothening factor for the arm's movement. Should be greater than 0 and less than 1.
 // Higher number means less smooth.
-const float INTERPOLATION_FACTOR = 0.02;
+const float INTERPOLATION_FACTOR = 0.05;
 
 const int BASE_SERVO_PIN = 0;
 const int BASE_ARM_SERVO_PIN = 1;
@@ -126,16 +126,116 @@ void loop() {
     }
   }
 
-  baseServoAngleSmoothed = (baseServoAngle * INTERPOLATION_FACTOR) + (baseServoAnglePrev * (1-INTERPOLATION_FACTOR));
-  baseArmServoAngleSmoothed = (baseArmServoAngle * INTERPOLATION_FACTOR) + (baseArmServoAnglePrev * (1-INTERPOLATION_FACTOR));
-  armArmServoAngleSmoothed = (armArmServoAngle * INTERPOLATION_FACTOR) + (armArmServoAnglePrev * (1-INTERPOLATION_FACTOR));
-  gripperPitchServoAngleSmoothed = (gripperPitchServoAngle * INTERPOLATION_FACTOR) + (gripperPitchServoAnglePrev * (1-INTERPOLATION_FACTOR));
+  // Calculate the smoothened baseServoAngle
+  if (baseServoAngle > baseServoAngleCached) {
+    if (baseServoAnglePrev < (baseServoAngle + baseServoAngleCached) / 2) {
+      baseServoAngleSmoothed = baseServoAnglePrev + (baseServoAnglePrev - baseServoAngleCached) * INTERPOLATION_FACTOR;
+
+      if (baseServoAngleSmoothed == baseServoAnglePrev) {
+        baseServoAngleSmoothed = baseServoAnglePrev + INTERPOLATION_FACTOR;
+      }
+    }
+    else {
+      baseServoAngleSmoothed = baseServoAnglePrev + (baseServoAngle - baseServoAnglePrev) * INTERPOLATION_FACTOR;
+    }
+  }
+  else {
+    if (baseServoAnglePrev > (baseServoAngle + baseServoAngleCached) / 2) {
+      baseServoAngleSmoothed = baseServoAnglePrev - (baseServoAngleCached - baseServoAnglePrev) * INTERPOLATION_FACTOR;
+
+      if (baseServoAngleSmoothed == baseServoAnglePrev) {
+        baseServoAngleSmoothed = baseServoAnglePrev - INTERPOLATION_FACTOR;
+      }
+    }
+    else {
+      baseServoAngleSmoothed = baseServoAnglePrev - (baseServoAnglePrev - baseServoAngle) * INTERPOLATION_FACTOR;
+    }
+  }
+
+  // Calculate the smoothened baseArmServoAngle
+  if (baseArmServoAngle > baseArmServoAngleCached) {
+    if (baseArmServoAnglePrev < (baseArmServoAngle + baseArmServoAngleCached) / 2) {
+      baseArmServoAngleSmoothed = baseArmServoAnglePrev + (baseArmServoAnglePrev - baseArmServoAngleCached) * INTERPOLATION_FACTOR;
+
+      if (baseArmServoAngleSmoothed == baseArmServoAnglePrev) {
+        baseArmServoAngleSmoothed = baseArmServoAnglePrev + INTERPOLATION_FACTOR;
+      }
+    }
+    else {
+      baseArmServoAngleSmoothed = baseArmServoAnglePrev + (baseArmServoAngle - baseArmServoAnglePrev) * INTERPOLATION_FACTOR;
+    }
+  }
+  else {
+    if (baseArmServoAnglePrev > (baseArmServoAngle + baseArmServoAngleCached) / 2) {
+      baseArmServoAngleSmoothed = baseArmServoAnglePrev - (baseArmServoAngleCached - baseArmServoAnglePrev) * INTERPOLATION_FACTOR;
+
+      if (baseArmServoAngleSmoothed == baseArmServoAnglePrev) {
+        baseArmServoAngleSmoothed = baseArmServoAnglePrev - INTERPOLATION_FACTOR;
+      }
+    }
+    else {
+      baseArmServoAngleSmoothed = baseArmServoAnglePrev - (baseArmServoAnglePrev - baseArmServoAngle) * INTERPOLATION_FACTOR;
+    }
+  }
+
+  // Calculate the smoothed armArmServoAngle
+  if (armArmServoAngle > armArmServoAngleCached) {
+    if (armArmServoAnglePrev < (armArmServoAngle + armArmServoAngleCached) / 2) {
+      armArmServoAngleSmoothed = armArmServoAnglePrev + (armArmServoAnglePrev - armArmServoAngleCached) * INTERPOLATION_FACTOR;
+
+      if (armArmServoAngleSmoothed == armArmServoAnglePrev) {
+        armArmServoAngleSmoothed = armArmServoAnglePrev + INTERPOLATION_FACTOR;
+      }
+    }
+    else {
+      armArmServoAngleSmoothed = armArmServoAnglePrev + (armArmServoAngle - armArmServoAnglePrev) * INTERPOLATION_FACTOR;
+    }
+  }
+  else {
+    if (armArmServoAnglePrev > (armArmServoAngle + armArmServoAngleCached) / 2) {
+      armArmServoAngleSmoothed = armArmServoAnglePrev - (armArmServoAngleCached - armArmServoAnglePrev) * INTERPOLATION_FACTOR;
+
+      if (armArmServoAngleSmoothed == armArmServoAnglePrev) {
+        armArmServoAngleSmoothed = armArmServoAnglePrev - INTERPOLATION_FACTOR;
+      }
+    }
+    else {
+      armArmServoAngleSmoothed = armArmServoAnglePrev - (armArmServoAnglePrev - armArmServoAngle) * INTERPOLATION_FACTOR;
+    }
+  }
+
+  // Calculate the smoothed gripperPitchServoAngle
+  if (gripperPitchServoAngle > gripperPitchServoAngleCached) {
+    if (gripperPitchServoAnglePrev < (gripperPitchServoAngle + gripperPitchServoAngleCached) / 2) {
+      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev + (gripperPitchServoAnglePrev - gripperPitchServoAngleCached) * INTERPOLATION_FACTOR;
+
+      if (gripperPitchServoAngleSmoothed == gripperPitchServoAnglePrev) {
+        gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev + INTERPOLATION_FACTOR;
+      }
+    }
+    else {
+      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev + (gripperPitchServoAngle - gripperPitchServoAnglePrev) * INTERPOLATION_FACTOR;
+    }
+  }
+  else {
+    if (gripperPitchServoAnglePrev > (gripperPitchServoAngle + gripperPitchServoAngleCached) / 2) {
+      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - (gripperPitchServoAngleCached - gripperPitchServoAnglePrev) * INTERPOLATION_FACTOR;
+
+      if (gripperPitchServoAngleSmoothed == gripperPitchServoAnglePrev) {
+        gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - INTERPOLATION_FACTOR;
+      }
+    }
+    else {
+      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - (gripperPitchServoAnglePrev - gripperPitchServoAngle) * INTERPOLATION_FACTOR;
+    }
+  }
 
   baseServoAnglePrev = baseServoAngleSmoothed;
   baseArmServoAnglePrev = baseArmServoAngleSmoothed;
   armArmServoAnglePrev = armArmServoAngleSmoothed;
   gripperPitchServoAnglePrev = gripperPitchServoAngleSmoothed;
 
+  // Calculate PWM pulse width from smoothened angles
   float pulseWidth = map(baseServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
   pwm.setPWM(BASE_SERVO_PIN, 0, pulseWidth);
