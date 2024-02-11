@@ -62,7 +62,7 @@ def main():
     parser.add_argument(
         '-b',
         '--baud-rate',
-        default=9600,
+        default=115200,
         type=int,
         help='Set the baud rate for communication with Arduino',
         dest='baud'

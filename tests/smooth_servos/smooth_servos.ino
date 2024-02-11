@@ -8,7 +8,7 @@ const float FREQUENCY = 50;
 const float MOVE_SETTLE_DELAY = 300;
 // The smoothening factor for the arm's movement. Should be greater than 0 and less than 1.
 // Higher number means less smooth.
-const float INTERPOLATION_FACTOR = 0.05;
+float INTERPOLATION_FACTOR = 0.04;
 
 const int BASE_SERVO_PIN = 0;
 const int BASE_ARM_SERVO_PIN = 1;
@@ -19,11 +19,11 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 // Stores the servo angles for hovering above each square of the board
 // in the format - {base angle, base-arm angle, arm-arm angle, gripper pitch}
-const int hoverAngles[64][4] = {
-  {84, 36, 8, 94}, {80, 47, 28, 100}, {76, 56, 39, 92}, {71, 64, 58, 98}, {68, 74, 76, 105}, {64, 82, 89, 115}, {61, 89, 100, 107}, {50, 99, 116, 117},         // A1 to A8
-  {87, 36, 8, 88},{87, 48, 32, 100},{84, 56, 46, 92},{84, 68, 66, 104},{77, 79, 89, 117},{75, 87, 102, 120},{70, 97, 111, 114},{60, 107, 123, 124},             // B1 to B8
-  {97, 42, 15, 89},{95, 51, 35, 100},{94, 57, 45, 92},{90, 71, 74, 108},{88, 79, 89, 114},{86, 90, 104, 120},{81, 100, 117, 117},{75, 113, 130, 124},           // C1 to C8
-  {100, 42, 14, 88},{103, 53, 36, 94},{103, 57, 45, 92},{104, 71, 74, 108},{100, 81, 87, 114},{100, 89, 104, 116},{94, 103, 116, 117},{92, 114, 132, 124},      // D1 to D8
+const float hoverAngles[64][4] = {
+  {84.0, 36.0, 8.0, 94.0}, {80.0, 47.0, 28.0, 100.0}, {76.0, 56.0, 39.0, 92.0}, {71.0, 64.0, 58.0, 98.0}, {68.0, 74.0, 76.0, 105.0}, {64.0, 82.0, 89.0, 115.0}, {61.0, 89.0, 100.0, 107.0}, {50.0, 99.0, 116.0, 117.0},         // A1 to A8
+  {87.0, 36.0, 8.0, 88.0},{87.0, 48.0, 32.0, 100.0},{84.0, 56.0, 46.0, 92.0},{84.0, 68.0, 66.0, 104.0},{77.0, 79.0, 89.0, 117.0},{75.0, 87.0, 102.0, 120.0},{70.0, 97.0, 111.0, 114.0},{60.0, 107.0, 123.0, 124.0},             // B1 to B8
+  {97.0, 42.0, 15.0, 89.0},{95.0, 51.0, 35.0, 100.0},{94.0, 57.0, 45.0, 92.0},{90.0, 71.0, 74.0, 108.0},{88.0, 79.0, 89.0, 114.0},{86.0, 90.0, 104.0, 120.0},{81.0, 100.0, 117.0, 117.0},{75.0, 113.0, 130.0, 124.0},           // C1 to C8
+  {100.0, 42.0, 14.0, 88.0},{103.0, 53.0, 36.0, 94.0},{103.0, 57.0, 45.0, 92.0},{104.0, 71.0, 74.0, 108.0},{100.0, 81.0, 87.0, 114.0},{100.0, 89.0, 104.0, 116.0},{94.0, 103.0, 116.0, 117.0},{92.0, 114.0, 132.0, 124.0},      // D1 to D8
   {110, 40, 10, 89},{109, 49, 31, 94},{109, 57, 44, 91},{107, 71, 73, 107},{108, 82, 87, 113},{111, 91, 104, 116},{112, 101, 117, 117},{113, 118, 136, 124},    // E1 to E8
   {103, 35, 35, 110},{115, 54, 31, 95},{118, 57, 44, 91},{119, 70, 73, 107},{117, 79, 84, 114},{125, 89, 102, 115},{126, 101, 117, 118},{130, 114, 130, 124},   // F1 to F8
   {110, 35, 35, 110},{124, 39, 15, 77},{127, 53, 38, 91},{125, 67, 65, 108},{128, 77, 81, 114},{137, 86, 97, 115},{139, 98, 112, 114},{143, 105, 122, 118},     // G1 to G8
@@ -32,9 +32,9 @@ const int hoverAngles[64][4] = {
 
 // Stores the servo angles for grabbing the piece on each square of the
 // board in the format - {base angle, base-arm angle, arm-arm angle, gripper pitch}
-const int grabbingAngles[64][4] = {
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
+const float grabbingAngles[64][4] = {
+  {83.00, 32.00, 8.00, 120.00},{78.00, 37.00, 17.00, 110.00},{79.00, 44.00, 30.00, 107.00},{71.00, 54.00, 58.00, 125.00},{69.00, 61.00, 71.00, 126.00},{64.00, 68.00, 89.00, 141.00},{58.00, 76.00, 114.00, 157.00},{49.00, 79.00, 120.00, 161.00},   // A1 to A8
+  {89.00, 31.00, 8.00, 116.00},{88.00, 39.00, 21.00, 110.00},{83.00, 49.00, 43.00, 119.00},{83.00, 58.00, 66.00, 131.00},{78.00, 67.00, 88.00, 144.00},{74.00, 70.00, 96.00, 141.00},{68.00, 79.00, 117.00, 157.00},{60.00, 82.00, 126.00, 160.00},   // B1 to B8 
   {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
   {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
   {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
@@ -45,41 +45,57 @@ const int grabbingAngles[64][4] = {
 
 // The angles for the position where captured pieces should be
 // dropped in the format - {base angle, base-arm angle, arm-arm angle, gripper pitch}
-const int captureAngles[4] = {0, 0, 0, 0};
+const float captureAngles[4] = {0, 0, 0, 0};
 
 // The angles the arm resets to after each move
-const int resetAngles[4] = {108, 132, 165, 165};
+const float resetAngles[4] = {108, 132, 165, 178};
 
-// Keep track of the servo angles for the previous square
-float baseServoAngleCached = 108;
-float baseArmServoAngleCached = 132;
-float armArmServoAngleCached = 165;
-float gripperPitchServoAngleCached = 165;
+// The angles of the servos for the previous destination
+float baseServoAngleCached = resetAngles[0];
+float baseArmServoAngleCached = resetAngles[1];
+float armArmServoAngleCached = resetAngles[2];
+float gripperPitchServoAngleCached = resetAngles[3];
 
-// The current angles of the servos
-float baseServoAngle = 108;
-float baseArmServoAngle = 132;
-float armArmServoAngle = 165;
-float gripperPitchServoAngle = 165;
+// The current destination angles of the servos
+float baseServoAngle = resetAngles[0];
+float baseArmServoAngle = resetAngles[1];
+float armArmServoAngle = resetAngles[2];
+float gripperPitchServoAngle = resetAngles[3];
 
 // The angles of the servos at the previous time step
-float baseServoAnglePrev = 108;
-float baseArmServoAnglePrev = 132;
-float armArmServoAnglePrev = 165;
-float gripperPitchServoAnglePrev = 165;
+float baseServoAnglePrev = resetAngles[0];
+float baseArmServoAnglePrev = resetAngles[1];
+float armArmServoAnglePrev = resetAngles[2];
+float gripperPitchServoAnglePrev = resetAngles[3];
 
 // The angles of the servos at the next time step
-float baseServoAngleSmoothed = 108;
-float baseArmServoAngleSmoothed = 132;
-float armArmServoAngleSmoothed = 165;
-float gripperPitchServoAngleSmoothed = 165;
+float baseServoAngleSmoothed = resetAngles[0];
+float baseArmServoAngleSmoothed = resetAngles[1];
+float armArmServoAngleSmoothed = resetAngles[2];
+float gripperPitchServoAngleSmoothed = resetAngles[3];
+
+// True if the gripper is currently closed, i.e. the arm is holding a piece
+bool gripperClosed = false;
+// The indices of the squares to visit sequentially
+int destinations[4] = {-1, -1, -1, -1};
+// The index of the current destination
+int currentDestination = 0;
+/**
+ * The current state -
+ * 0 means hover over the target
+ * 1 means lower the arm at the target
+ * 2 means toggle the gripper state (open -> close or close -> open)
+ * 3 means hover over the target again
+*/
+int currentState = 0;
+
 
 void setup() {
   Serial.begin(115200);
   pwm.begin();
   pwm.setPWMFreq(FREQUENCY);
 
-  int pulseWidth;
+  float pulseWidth;
   pulseWidth = map(baseServoAngle, 0, 180, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
   pwm.setPWM(BASE_SERVO_PIN, 0, pulseWidth);
@@ -109,23 +125,120 @@ void loop() {
 
     if (move == "q") {
       Serial.println("Resetting arm position");
-      
       baseServoAngle = 108;
       baseArmServoAngle = 132;
       armArmServoAngle = 165;
       gripperPitchServoAngle = 165;
     }
     else {
-      Serial.print("Moving to "); Serial.println(move);
-      int idx = getSquareIndex(move);
-      
-      baseServoAngle = hoverAngles[idx][0];
-      baseArmServoAngle = hoverAngles[idx][1];
-      armArmServoAngle = hoverAngles[idx][2];
-      gripperPitchServoAngle = hoverAngles[idx][3];
+      bool capture = move.substring(2, 3) == "x";
+      String start = move.substring(0, 2);
+      String end = move.substring(3);
+      int startIdx = getSquareIndex(start);
+      int endIdx = getSquareIndex(end);
+
+      if (capture) {
+        destinations[0] = endIdx;
+        destinations[1] = -1;
+        destinations[2] = startIdx;
+        destinations[3] = endIdx;
+      }
+      else {
+        destinations[0] = startIdx;
+        destinations[1] = endIdx;
+        destinations[2] = -1;
+        destinations[3] = -1;
+      }
+
+      currentDestination = -1;
+      currentState = -1;
     }
   }
 
+  if (transitionComplete()) {
+    if (currentState >= 3) {
+      currentState = 0;
+      currentDestination += 1;
+    }
+    else {
+      currentState += 1;
+    }
+  }
+
+  updateSmoothedAngles();
+
+  baseServoAnglePrev = baseServoAngleSmoothed;
+  baseArmServoAnglePrev = baseArmServoAngleSmoothed;
+  armArmServoAnglePrev = armArmServoAngleSmoothed;
+  gripperPitchServoAnglePrev = gripperPitchServoAngleSmoothed;
+
+  // Calculate PWM pulse width from smoothened angles
+  float pulseWidth = map(baseServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
+  pwm.setPWM(BASE_SERVO_PIN, 0, pulseWidth);
+
+  pulseWidth = map(baseArmServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
+  pwm.setPWM(BASE_ARM_SERVO_PIN, 0, pulseWidth);
+
+  pulseWidth = map(armArmServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
+  pwm.setPWM(ARM_ARM_SERVO_PIN, 0, pulseWidth);
+
+  pulseWidth = map(gripperPitchServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
+  pwm.setPWM(GRIPPER_PITCH_SERVO_PIN, 0, pulseWidth);
+
+  Serial.print(baseServoAngleSmoothed);
+  Serial.print(",");
+  Serial.print(baseArmServoAngleSmoothed);
+  Serial.print(",");
+  Serial.print(armArmServoAngleSmoothed);
+  Serial.print(",");
+  Serial.println(gripperPitchServoAngleSmoothed);
+
+  delay(5);  // loop 200 times a second
+}
+
+/**
+ * Returns the index into the square array for a 
+ * particular square as a string
+*/
+int getSquareIndex(String square) {
+  switch (square[0]) {
+    case 'A':
+    case 'a':
+      return (int) square[1] - 49;
+    case 'B':
+    case 'b':
+      return 8 + (int) square[1] - 49;
+    case 'C':
+    case 'c':
+      return 16 + (int) square[1] - 49;
+    case 'D': 
+    case 'd':
+      return 24 + (int) square[1] - 49;
+    case 'E':
+    case 'e':
+      return 32 + (int) square[1] - 49;
+    case 'F':
+    case 'f':
+      return 40 + (int) square[1] - 49;
+    case 'G':
+    case 'g':
+      return 48 + (int) square[1] - 49;
+    case 'H':
+    case 'h':
+      return 56 + (int) square[1] - 49;
+  }
+}
+
+/**
+ * Updates all servo angles for the next time step 
+ * based on the start angles, current angles, destination angles,
+ * and the interpolation factor.
+*/
+void updateSmoothedAngles() {
   // Calculate the smoothened baseServoAngle
   if (baseServoAngle > baseServoAngleCached) {
     if (baseServoAnglePrev < (baseServoAngle + baseServoAngleCached) / 2) {
@@ -229,82 +342,24 @@ void loop() {
       gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - (gripperPitchServoAnglePrev - gripperPitchServoAngle) * INTERPOLATION_FACTOR;
     }
   }
-
-  baseServoAnglePrev = baseServoAngleSmoothed;
-  baseArmServoAnglePrev = baseArmServoAngleSmoothed;
-  armArmServoAnglePrev = armArmServoAngleSmoothed;
-  gripperPitchServoAnglePrev = gripperPitchServoAngleSmoothed;
-
-  // Calculate PWM pulse width from smoothened angles
-  float pulseWidth = map(baseServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
-  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
-  pwm.setPWM(BASE_SERVO_PIN, 0, pulseWidth);
-
-  pulseWidth = map(baseArmServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
-  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
-  pwm.setPWM(BASE_ARM_SERVO_PIN, 0, pulseWidth);
-
-  pulseWidth = map(armArmServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
-  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
-  pwm.setPWM(ARM_ARM_SERVO_PIN, 0, pulseWidth);
-
-  pulseWidth = map(gripperPitchServoAngleSmoothed, 0.0, 180.0, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
-  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
-  pwm.setPWM(GRIPPER_PITCH_SERVO_PIN, 0, pulseWidth);
-
-  Serial.print(baseServoAngleSmoothed);
-  Serial.print(",");
-  Serial.print(baseArmServoAngleSmoothed);
-  Serial.print(",");
-  Serial.print(armArmServoAngleSmoothed);
-  Serial.print(",");
-  Serial.println(gripperPitchServoAngleSmoothed);
-
-  delay(5);  // loop 200 times a second
 }
 
-/*
-  Returns the index into the square array for a 
-  particular square as a string
-*/
-int getSquareIndex(String square) {
-  switch (square[0]) {
-    case 'A':
-    case 'a':
-      return (int) square[1] - 49;
-    case 'B':
-    case 'b':
-      return 8 + (int) square[1] - 49;
-    case 'C':
-    case 'c':
-      return 16 + (int) square[1] - 49;
-    case 'D': 
-    case 'd':
-      return 24 + (int) square[1] - 49;
-    case 'E':
-    case 'e':
-      return 32 + (int) square[1] - 49;
-    case 'F':
-    case 'f':
-      return 40 + (int) square[1] - 49;
-    case 'G':
-    case 'g':
-      return 48 + (int) square[1] - 49;
-    case 'H':
-    case 'h':
-      return 56 + (int) square[1] - 49;
-  }
-}
 
-/*
-  Utility function to return the largest element in an array
+/**
+ * Returns true if the arm has finished moving to its 
+ * destination and we can update the state to start the
+ * next step of the move
 */
-int get_max(int *l, int size) {
-  int largest = l[0];
-  for (int i = 0; i < size; i++) {
-    if (l[i] > largest) {
-      largest = l[i];
-    }
-  }
-  return largest;
+bool transitionComplete() {
+  bool baseDone = false;
+  bool baseArmDone = false;
+  bool armArmDone = false;
+  bool gripperDone = false;
+
+  if (abs(baseServoAngle - baseServoAnglePrev) < 0.1) baseDone = true;
+  if (abs(baseArmServoAngle - baseArmServoAnglePrev) < 0.1) baseArmDone = true;
+  if (abs(armArmServoAngle - armArmServoAnglePrev) < 0.1) armArmDone = true;
+  if (abs(gripperPitchServoAngle - gripperPitchServoAnglePrev) < 0.1) gripperDone = true;
+
+  return baseDone && baseArmDone && armArmDone && gripperDone;
 }

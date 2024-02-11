@@ -15,9 +15,9 @@
 // Include Adafruit PWM Library
 #include <Adafruit_PWMServoDriver.h>
 
-#define MIN_PULSE_WIDTH       650
-#define MAX_PULSE_WIDTH       2350
-#define FREQUENCY             50
+#define MIN_PULSE_WIDTH       650.0
+#define MAX_PULSE_WIDTH       2350.0
+#define FREQUENCY             50.0
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
@@ -37,7 +37,7 @@ int motorD = 3;
 
 void setup() 
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   pwm.begin();
   pwm.setPWMFreq(FREQUENCY);
 }
@@ -45,17 +45,18 @@ void setup()
 
 void moveMotor(int controlIn, int motorOut)
 {
-  int pulse_wide, pulse_width, potVal;
+  int potVal;
+  float pulseWidth;
   
   // Read values from potentiometer
   potVal = analogRead(controlIn);
   
   // Convert to pulse width
-  pulse_wide = map(potVal, 0, 1023, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
-  pulse_width = int(float(pulse_wide) / 1000000 * FREQUENCY * 4096);
+  pulseWidth = map(potVal, 0, 1023, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  pulseWidth = int(float(pulseWidth) / 1000000.0 * FREQUENCY * 4096.0);
   
   //Control Motor
-  pwm.setPWM(motorOut, 0, pulse_width);
+  pwm.setPWM(motorOut, 0, pulseWidth);
 
 }
 
@@ -76,7 +77,7 @@ void loop() {
   if (Serial.available()) {
     for (int i = 14; i < 18; i++) {
       int potVal = analogRead(i);
-      int servoAngle = int(map(potVal, 0, 1023, 0, 180));
+      float servoAngle = map(potVal, 0, 1023, 0.0, 180.0);
       Serial.print(servoAngle); Serial.print(", ");
     }
     Serial.println("");
