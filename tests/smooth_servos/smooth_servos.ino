@@ -19,36 +19,37 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 // Stores the servo angles for hovering above each square of the board
 // in the format - {base angle, base-arm angle, arm-arm angle, gripper pitch}
-const float hoverAngles[64][4] = {
+const int hoverAngles[64][4] = {
   {84.0, 36.0, 8.0, 94.0}, {80.0, 47.0, 28.0, 100.0}, {76.0, 56.0, 39.0, 92.0}, {71.0, 64.0, 58.0, 98.0}, {68.0, 74.0, 76.0, 105.0}, {64.0, 82.0, 89.0, 115.0}, {61.0, 89.0, 100.0, 107.0}, {50.0, 99.0, 116.0, 117.0},         // A1 to A8
   {87.0, 36.0, 8.0, 88.0},{87.0, 48.0, 32.0, 100.0},{84.0, 56.0, 46.0, 92.0},{84.0, 68.0, 66.0, 104.0},{77.0, 79.0, 89.0, 117.0},{75.0, 87.0, 102.0, 120.0},{70.0, 97.0, 111.0, 114.0},{60.0, 107.0, 123.0, 124.0},             // B1 to B8
   {97.0, 42.0, 15.0, 89.0},{95.0, 51.0, 35.0, 100.0},{94.0, 57.0, 45.0, 92.0},{90.0, 71.0, 74.0, 108.0},{88.0, 79.0, 89.0, 114.0},{86.0, 90.0, 104.0, 120.0},{81.0, 100.0, 117.0, 117.0},{75.0, 113.0, 130.0, 124.0},           // C1 to C8
   {100.0, 42.0, 14.0, 88.0},{103.0, 53.0, 36.0, 94.0},{103.0, 57.0, 45.0, 92.0},{104.0, 71.0, 74.0, 108.0},{100.0, 81.0, 87.0, 114.0},{100.0, 89.0, 104.0, 116.0},{94.0, 103.0, 116.0, 117.0},{92.0, 114.0, 132.0, 124.0},      // D1 to D8
-  {110, 40, 10, 89},{109, 49, 31, 94},{109, 57, 44, 91},{107, 71, 73, 107},{108, 82, 87, 113},{111, 91, 104, 116},{112, 101, 117, 117},{113, 118, 136, 124},    // E1 to E8
-  {103, 35, 35, 110},{115, 54, 31, 95},{118, 57, 44, 91},{119, 70, 73, 107},{117, 79, 84, 114},{125, 89, 102, 115},{126, 101, 117, 118},{130, 114, 130, 124},   // F1 to F8
-  {110, 35, 35, 110},{124, 39, 15, 77},{127, 53, 38, 91},{125, 67, 65, 108},{128, 77, 81, 114},{137, 86, 97, 115},{139, 98, 112, 114},{143, 105, 122, 118},     // G1 to G8
-  {127, 38, 14, 109},{127, 41, 8, 84},{134, 54, 32, 83},{134, 64, 58, 102},{140, 73, 73, 114},{142, 81, 87, 107},{147, 92, 104, 117},{161, 98, 115, 118},       // H1 to H8
+  {110.0, 40.0, 10.0, 89.0},{109.0, 49.0, 31.0, 94.0},{109.0, 57.0, 44.0, 91.0},{107.0, 71.0, 73.0, 107.0},{108.0, 82.0, 87.0, 113.0},{111.0, 91.0, 104.0, 116.0},{112.0, 101.0, 117.0, 117.0},{113.0, 118.0, 136.0, 124.0},    // E1 to E8
+  {103.0, 35.0, 35.0, 110.0},{115.0, 54.0, 31.0, 95.0},{118.0, 57.0, 44.0, 91.0},{119.0, 70.0, 73.0, 107.0},{117.0, 79.0, 84.0, 114.0},{125.0, 89.0, 102.0, 115.0},{126.0, 101.0, 117.0, 118.0},{130.0, 114.0, 130.0, 124.0},   // F1 to F8
+  {110.0, 35.0, 35.0, 110.0},{124.0, 39.0, 15.0, 77.0},{127.0, 53.0, 38.0, 91.0},{125.0, 67.0, 65.0, 108.0},{128.0, 77.0, 81.0, 114.0},{137.0, 86.0, 97.0, 115.0},{139.0, 98.0, 112.0, 114.0},{143.0, 105.0, 122.0, 118.0},     // G1 to G8
+  {127.0, 38.0, 14.0, 109.0},{127.0, 41.0, 8.0, 84.0},{134.0, 54.0, 32.0, 83.0},{134.0, 64.0, 58.0, 102.0},{140.0, 73.0, 73.0, 114.0},{142.0, 81.0, 87.0, 107.0},{147.0, 92.0, 104.0, 117.0},{161.0, 98.0, 115.0, 118.0},       // H1 to H8
 };
 
 // Stores the servo angles for grabbing the piece on each square of the
 // board in the format - {base angle, base-arm angle, arm-arm angle, gripper pitch}
-const float grabbingAngles[64][4] = {
-  {83.00, 32.00, 8.00, 120.00},{78.00, 37.00, 17.00, 110.00},{79.00, 44.00, 30.00, 107.00},{71.00, 54.00, 58.00, 125.00},{69.00, 61.00, 71.00, 126.00},{64.00, 68.00, 89.00, 141.00},{58.00, 76.00, 114.00, 157.00},{49.00, 79.00, 120.00, 161.00},   // A1 to A8
-  {89.00, 31.00, 8.00, 116.00},{88.00, 39.00, 21.00, 110.00},{83.00, 49.00, 43.00, 119.00},{83.00, 58.00, 66.00, 131.00},{78.00, 67.00, 88.00, 144.00},{74.00, 70.00, 96.00, 141.00},{68.00, 79.00, 117.00, 157.00},{60.00, 82.00, 126.00, 160.00},   // B1 to B8 
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 
+const int grabbingAngles[64][4] = {
+  {83.00, 32.00, 8.00, 120.00},{78.00, 37.00, 17.00, 110.00},{79.00, 44.00, 30.00, 107.00},{71.00, 54.00, 58.00, 125.00},{69.00, 61.00, 71.00, 126.00},{64.00, 68.00, 89.00, 141.00},{58.00, 76.00, 114.00, 157.00},{49.00, 79.00, 120.00, 161.00},           // A1 to A8
+  {89.00, 31.00, 8.00, 116.00},{88.00, 39.00, 21.00, 110.00},{83.00, 49.00, 43.00, 119.00},{83.00, 58.00, 66.00, 131.00},{78.00, 67.00, 88.00, 144.00},{74.00, 70.00, 96.00, 141.00},{68.00, 79.00, 117.00, 157.00},{60.00, 82.00, 126.00, 160.00},           // B1 to B8 
+  {96.00, 31.00, 8.00, 111.00},{91.00, 41.00, 25.00, 110.00},{94.00, 50.00, 47.00, 120.00},{93.00, 61.00, 70.00, 130.00},{91.00, 68.00, 91.00, 144.00},{87.00, 73.00, 105.00, 144.00},{82.00, 79.00, 120.00, 157.00},{76.00, 87.00, 132.00, 160.00},          // C1 to C8
+  {99.00, 32.00, 8.00, 111.00},{102.00, 41.00, 26.00, 110.00},{102.00, 51.00, 50.00, 120.00},{101.00, 61.00, 71.00, 131.00},{99.00, 68.00, 92.00, 144.00},{100.00, 73.00, 105.00, 144.00},{98.00, 81.00, 125.00, 161.00},{91.00, 88.00, 137.00, 165.00},      // D1 to D8 
+  {106.00, 32.00, 8.00, 111.00},{108.00, 41.00, 26.00, 110.00},{110.00, 51.00, 50.00, 120.00},{112.00, 61.00, 71.00, 131.00},{111.00, 68.00, 92.00, 144.00},{112.00, 73.00, 105.00, 144.00},{114.00, 81.00, 125.00, 161.00},{116.00, 88.00, 137.00, 165.00},  // E1 to E8 
+  {116.00, 32.00, 8.00, 111.00},{113.00, 39.00, 23.00, 110.00},{117.00, 51.00, 46.00, 120.00},{115.00, 57.00, 64.00, 122.00},{122.00, 67.00, 89.00, 144.00},{124.00, 72.00, 103.00, 144.00},{126.00, 81.00, 120.00, 157.00},{132.00, 87.00, 133.00, 159.00},  // F1 to F8
+  {122.00, 32.00, 8.00, 116.00},{120.00, 38.00, 21.00, 110.00},{121.00, 49.00, 45.00, 120.00},{124.00, 57.00, 61.00, 122.00},{130.00, 65.00, 86.00, 144.00},{131.00, 70.00, 97.00, 144.00},{139.00, 79.00, 117.00, 157.00},{146.00, 82.00, 126.00, 160.00},   // G1 to G8
+   {127.00, 32.00, 8.00, 121.00},{126.00, 35.00, 13.00, 107.00},{133.00, 44.00, 30.00, 112.00},{134.00, 53.00, 56.00, 122.00},{138.00, 63.00, 80.00, 141.00},{141.00, 68.00, 91.00, 144.00},{149.00, 76.00, 114.00, 157.00},{155.00, 79.00, 119.00, 160.00},  // H1 to H8
 };
 
 // The angles for the position where captured pieces should be
 // dropped in the format - {base angle, base-arm angle, arm-arm angle, gripper pitch}
-const float captureAngles[4] = {0, 0, 0, 0};
+const float captureHoverAngles[4] = {0.0, 0.0, 0.0, 0.0};
+const float captureLowerAngles[4] = {0.0, 0.0, 0.0, 0.0};
 
 // The angles the arm resets to after each move
-const float resetAngles[4] = {108, 132, 165, 178};
+const float resetAngles[4] = {108.0, 132.0, 165.0, 178.0};
 
 // The angles of the servos for the previous destination
 float baseServoAngleCached = resetAngles[0];
@@ -84,7 +85,7 @@ int currentDestination = 0;
  * The current state -
  * 0 means hover over the target
  * 1 means lower the arm at the target
- * 2 means toggle the gripper state (open -> close or close -> open)
+ * 2 means toggle the gripper state (open -> close or closed -> open)
  * 3 means hover over the target again
 */
 int currentState = 0;
@@ -125,10 +126,12 @@ void loop() {
 
     if (move == "q") {
       Serial.println("Resetting arm position");
-      baseServoAngle = 108;
-      baseArmServoAngle = 132;
-      armArmServoAngle = 165;
-      gripperPitchServoAngle = 165;
+      baseServoAngle = resetAngles[0];
+      baseArmServoAngle = resetAngles[1];
+      armArmServoAngle = resetAngles[2];
+      gripperPitchServoAngle = resetAngles[3];
+
+      openGripper();
     }
     else {
       bool capture = move.substring(2, 3) == "x";
@@ -150,12 +153,18 @@ void loop() {
         destinations[3] = -1;
       }
 
-      currentDestination = -1;
-      currentState = -1;
+      currentDestination = 0;
+      currentState = 0;
+
+      baseServoAngle = hoverAngles[destinations[0]][0];
+      baseArmServoAngle = hoverAngles[destinations[0]][1];
+      armArmServoAngle = hoverAngles[destinations[0]][2];
+      gripperPitchServoAngle = hoverAngles[destinations[0]][3];
     }
   }
 
   if (transitionComplete()) {
+    // Update current state and current destination
     if (currentState >= 3) {
       currentState = 0;
       currentDestination += 1;
@@ -163,6 +172,64 @@ void loop() {
     else {
       currentState += 1;
     }
+
+    int idx = destinations[currentDestination];
+    // If we go through all destinations, we reset the arm position
+    if (
+      currentDestination > 3
+      || (currentDestination > 1 && idx == -1)
+    ) {
+      currentDestination = 4;
+      currentState = 3;
+
+      baseServoAngle = resetAngles[0];
+      baseArmServoAngle = resetAngles[1];
+      armArmServoAngle = resetAngles[2];
+      gripperPitchServoAngle = resetAngles[3];
+    }
+
+    // Update destination angles/take new action 
+    // according to new updated state and destination
+    if (currentState == 2) {
+      if (gripperClosed) openGripper();
+      else closeGripper();
+    }
+    else if (currentDestination < 4) {
+      // If index is -1 when current destination is 1, we have to hover over
+      // the capture position
+      if (currentDestination == 1 && idx == -1) {
+        if (currentState == 0 || currentState == 3) {
+          baseServoAngle = captureHoverAngles[0];
+          baseArmServoAngle = captureHoverAngles[1];
+          armArmServoAngle = captureHoverAngles[2];
+          gripperPitchServoAngle = captureHoverAngles[3];
+        }
+        if (currentState == 1) {
+          baseServoAngle = captureLowerAngles[0];
+          baseArmServoAngle = captureLowerAngles[1];
+          armArmServoAngle = captureLowerAngles[2];
+          gripperPitchServoAngle = captureLowerAngles[3];
+        }
+      }
+      else {
+        // If we get a valid square index, we have to move to that square
+        if (idx >= 0 && idx <= 63) {
+          if (currentState == 0 || currentState == 3) {
+            baseServoAngle = hoverAngles[idx][0];
+            baseArmServoAngle = hoverAngles[idx][1];
+            armArmServoAngle = hoverAngles[idx][2];
+            gripperPitchServoAngle = hoverAngles[idx][3];
+          }
+          if (currentState == 1) {
+            baseServoAngle = grabbingAngles[idx][0];
+            baseArmServoAngle = grabbingAngles[idx][1];
+            armArmServoAngle = grabbingAngles[idx][2];
+            gripperPitchServoAngle = grabbingAngles[idx][3];
+          }
+        }
+      }
+    }
+    
   }
 
   updateSmoothedAngles();
@@ -362,4 +429,17 @@ bool transitionComplete() {
   if (abs(gripperPitchServoAngle - gripperPitchServoAnglePrev) < 0.1) gripperDone = true;
 
   return baseDone && baseArmDone && armArmDone && gripperDone;
+}
+
+
+void openGripper() {
+  Serial.println("Opening gripper");
+  gripperClosed = false;
+  delay(MOVE_SETTLE_DELAY);
+}
+
+void closeGripper() {
+  Serial.println("Closing gripper");
+  gripperClosed = true;
+  delay(MOVE_SETTLE_DELAY);
 }
