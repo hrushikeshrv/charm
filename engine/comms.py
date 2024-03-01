@@ -21,7 +21,7 @@ def get_socket(port: str, baud_rate: int, timeout: int = 120):
     return socket
 
 
-def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int], capture: bool) -> None:
+def send_move_to_arm(socket: serial.Serial, move: tuple[str, str] | tuple[int, int], capture: bool) -> None:
     """
     Encodes the move to bytes and sends move to arm.
     The move is encoded in the format "<start_square>,<end_square>"
@@ -39,7 +39,7 @@ def send_move_to_arm(socket, move: tuple[str,str] | tuple[int,int], capture: boo
     socket.write(move_str.encode())
 
 
-def get_move_from_arm(socket) -> tuple[str,str]:
+def get_move_from_arm(socket: serial.Serial) -> tuple[str, str]:
     """
     Blocks for the arm to send a move to the computer and
     returns the move converted to the appropriate format
