@@ -6,6 +6,7 @@ import sys
 from chessengine import Board
 from chessengine.lookup_tables import coords_to_pos, pos_to_coords
 import comms
+from utils import square_names
 import stockfishpy
 
 
@@ -76,6 +77,14 @@ def main():
         help='Print debugging output to stdout',
         choices=[True, False]
     )
+    parser.add_argument(
+        '-f',
+        '--feedback',
+        default='auto',
+        help='The feedback type. If "auto", the move made by the human opponent is communicated by the arm, if "manual", the move made by the human needs to be entered into the terminal.',
+        dest='feedback',
+        choices=['auto', 'manual']
+    )
 
     args = parser.parse_args()
 
@@ -135,7 +144,19 @@ def main():
             # Read move to make from serial port
             if args.verbose:
                 print('Waiting for move from arm')
-            start, end = comms.get_move_from_arm(socket)
+            if args.feedback == 'auto':
+                start, end = comms.get_move_from_arm(socket)
+            else:
+                move = input('Enter the move made by the opponent in the format <start_square>,<end_square> - ').split(',')
+                while (
+                    move[0].lower() not in square_names 
+                    or move[1].lower() not in square_names
+                    or len(move) != 2
+                ):
+                    print(f'Could\'nt identify the move {",".join(move)}. Enter the move in the format <start_square>,<end_square>. For example: a4,a5')
+                    move = input('Enter the move made by the opponent in the format <start_square>,<end_square> - ').split(',')
+                start = move[0].upper()
+                end = move[1].upper()
             if args.verbose:
                 print(f'Received move from arm - {start} to {end}')
             board.move_raw(2 ** coords_to_pos[start.upper()], 2 ** coords_to_pos[end.upper()])
