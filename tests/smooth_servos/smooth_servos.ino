@@ -186,6 +186,7 @@ void loop() {
       baseArmServoAngle = resetAngles[1];
       armArmServoAngle = resetAngles[2];
       gripperPitchServoAngle = resetAngles[3];
+      Serial.println("move done");
     }
 
     // Update destination angles/take new action 
