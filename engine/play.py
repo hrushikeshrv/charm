@@ -2,7 +2,6 @@ import argparse
 from functools import wraps
 from math import log2
 import sys
-from webbrowser import get
 
 from chessengine import Board
 from chessengine.lookup_tables import coords_to_pos, pos_to_coords
@@ -104,7 +103,7 @@ def main():
     engine = stockfishpy.Engine(args.path)
     engine.ucinewgame()
     engine.uci()
-    print('Stockfish: ', engine.isready())
+    print('Stockfish:', engine.isready())
     
     side_to_move = 'white'
 
@@ -148,12 +147,12 @@ def main():
                 capture = end_side is not None
 
                 if args.verbose:
-                    print('Sending move to arm')
+                    print(f'Sending {best_move} to arm')
                     lines_printed += 1
                 comms.send_move_to_arm(socket, (best_move[0:2], best_move[2:]), capture)
         else:
             if args.verbose:
-                print('Waiting for move from arm')
+                print('Waiting to detect opponent\'s move')
                 lines_printed += 1
             if args.feedback == 'auto':
                 # Read move to make from serial port
@@ -167,7 +166,7 @@ def main():
                     or move[1].lower() not in square_names
                     or len(move) != 2
                 ):
-                    print(f'Could\'nt identify the move {",".join(move)}. Enter the move in the format <start_square>,<end_square>. For example: a4,a5')
+                    print(f'Couldn\'t identify the move {",".join(move)}. Enter the move in the format <start_square>,<end_square>. For example: a4,a5')
                     move = input('Enter the move made by the opponent in the format <start_square>,<end_square> - ').split(',')
                     lines_printed += 2
                 start = move[0].upper()

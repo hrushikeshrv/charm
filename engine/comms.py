@@ -37,6 +37,8 @@ def send_move_to_arm(socket: serial.Serial, move: tuple[str, str] | tuple[int, i
     else:
         move_str = f'{_[0]},{_[1]}'
     socket.write(move_str.encode())
+    # Wait for acknowledgement from the arm that the move was made
+    response = socket.read(9).decode()
 
 
 def get_move_from_arm(socket: serial.Serial) -> tuple[str, str]:
