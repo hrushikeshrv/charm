@@ -1,3 +1,8 @@
+from math import log2
+
+from chessengine.lookup_tables import pos_to_coords
+
+
 square_names = set([
     'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8',
     'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8',
@@ -8,3 +13,14 @@ square_names = set([
     'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8',
 ])
+
+
+def get_moves_made(board):
+    """
+    Returns a list of all moves made on the board so far in UCI compliant format
+    to set Stockfish's position.
+    """
+    moves = []
+    for move in board.moves:
+        moves.append(pos_to_coords[int(log2(move[0]))].lower() + pos_to_coords[int(log2(move[1]))].lower())
+    return moves

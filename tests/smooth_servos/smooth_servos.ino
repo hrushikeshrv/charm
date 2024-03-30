@@ -79,7 +79,7 @@ float gripperPitchServoAngleSmoothed = resetAngles[3];
 bool gripperClosed = false;
 // The indices of the squares to visit sequentially
 int destinations[4] = {-1, -1, -1, -1};
-// The index of the current destination
+// The index of the current destination in either the hoverAngles array or the grabbingAngles array
 int currentDestination = 0;
 /**
  * The current state -
@@ -256,13 +256,13 @@ void loop() {
   pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
   pwm.setPWM(GRIPPER_PITCH_SERVO_PIN, 0, pulseWidth);
 
-  Serial.print(baseServoAngleSmoothed);
-  Serial.print(",");
-  Serial.print(baseArmServoAngleSmoothed);
-  Serial.print(",");
-  Serial.print(armArmServoAngleSmoothed);
-  Serial.print(",");
-  Serial.println(gripperPitchServoAngleSmoothed);
+  // Serial.print(baseServoAngleSmoothed);
+  // Serial.print(",");
+  // Serial.print(baseArmServoAngleSmoothed);
+  // Serial.print(",");
+  // Serial.print(armArmServoAngleSmoothed);
+  // Serial.print(",");
+  // Serial.println(gripperPitchServoAngleSmoothed);
 
   delay(5);  // loop 200 times a second
 }
@@ -433,13 +433,13 @@ bool transitionComplete() {
 
 
 void openGripper() {
-  Serial.println("Opening gripper");
+  // Serial.println("Opening gripper");
   gripperClosed = false;
   delay(MOVE_SETTLE_DELAY);
 }
 
 void closeGripper() {
-  Serial.println("Closing gripper");
+  // Serial.println("Closing gripper");
   gripperClosed = true;
   delay(MOVE_SETTLE_DELAY);
 }

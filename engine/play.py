@@ -2,11 +2,13 @@ import argparse
 from functools import wraps
 from math import log2
 import sys
+from webbrowser import get
 
 from chessengine import Board
 from chessengine.lookup_tables import coords_to_pos, pos_to_coords
+from chessengine.utils import clear_lines
 import comms
-from utils import square_names
+from utils import square_names, get_moves_made
 import stockfishpy
 
 
@@ -81,7 +83,7 @@ def main():
         '-f',
         '--feedback',
         default='auto',
-        help='The feedback type. If "auto", the move made by the human opponent is communicated by the arm, if "manual", the move made by the human needs to be entered into the terminal.',
+        help='The feedback type. If "auto", the move made by the opponent is communicated by the arm, if "manual", the move made by the opponent needs to be entered into the terminal.',
         dest='feedback',
         choices=['auto', 'manual']
     )
@@ -102,52 +104,64 @@ def main():
     engine = stockfishpy.Engine(args.path)
     engine.ucinewgame()
     engine.uci()
-    print(engine.isready())
+    print('Stockfish: ', engine.isready())
     
     side_to_move = 'white'
-    print(board)
 
     if args.verbose:
         print(f'Starting game. Engine is playing {board_side}.')
+
+    print(board)
+    lines_printed = 11
     while True:
+        if not args.verbose:
+            clear_lines(lines_printed)
+        print(board)
+        lines_printed = 11
         if side_to_move == board_side:
             # Find move and make it (send it to arm)
             if args.engine == 'default':
                 _, best_move = board.search_forward(args.depth)
                 end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
                 board.move(best_move[0], best_move[1])
+                capture = end_side is not None
+
                 if args.verbose:
                     print(f'Calculated best move using chessengine - {pos_to_coords[int(log2(best_move[0]))]} to {pos_to_coords[int(log2(best_move[1]))]}')
-                capture = end_side is not None
-                
-                if args.verbose:
                     print('Sending move to arm')
+                    lines_printed += 2
+
                 comms.send_move_to_arm(socket, (best_move[0], best_move[1]), capture)
             else:
                 # Stockfish always makes the best moves
                 best_move = engine.bestmove()['bestmove']
-                engine.setposition([best_move])
+                engine.setposition(get_moves_made(board) + [best_move])
                 if args.verbose:
-                    print('Calculated best move using stockfish')
+                    print(f'Calculated best move using stockfish - {best_move}')
+                    lines_printed += 1
                 
                 # Also track moves on chessengine's board to detect captures
-                start = coords_to_pos[best_move[0:2].upper()]
-                end = coords_to_pos[best_move[2:].upper()]
-                end_side, end_piece, end_board = board.identify_piece_at(best_move[1])
+                start = 2 ** coords_to_pos[best_move[0:2].upper()]
+                end = 2 ** coords_to_pos[best_move[2:].upper()]
+                end_side, end_piece, end_board = board.identify_piece_at(end)
                 board.move(start, end)
                 capture = end_side is not None
 
                 if args.verbose:
                     print('Sending move to arm')
+                    lines_printed += 1
                 comms.send_move_to_arm(socket, (best_move[0:2], best_move[2:]), capture)
         else:
-            # Read move to make from serial port
             if args.verbose:
                 print('Waiting for move from arm')
+                lines_printed += 1
             if args.feedback == 'auto':
+                # Read move to make from serial port
                 start, end = comms.get_move_from_arm(socket)
             else:
+                # Read move from stdin
                 move = input('Enter the move made by the opponent in the format <start_square>,<end_square> - ').split(',')
+                lines_printed += 1
                 while (
                     move[0].lower() not in square_names 
                     or move[1].lower() not in square_names
@@ -155,12 +169,14 @@ def main():
                 ):
                     print(f'Could\'nt identify the move {",".join(move)}. Enter the move in the format <start_square>,<end_square>. For example: a4,a5')
                     move = input('Enter the move made by the opponent in the format <start_square>,<end_square> - ').split(',')
+                    lines_printed += 2
                 start = move[0].upper()
                 end = move[1].upper()
             if args.verbose:
                 print(f'Received move from arm - {start} to {end}')
+                lines_printed += 1
             board.move_raw(2 ** coords_to_pos[start.upper()], 2 ** coords_to_pos[end.upper()])
-            engine.setposition([start+end])
+            engine.setposition(get_moves_made(board) + [start+end])
             
         side_to_move = 'white' if side_to_move == 'black' else 'black'
 
