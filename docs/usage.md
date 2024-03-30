@@ -36,5 +36,6 @@ The Python file `engine/play.py` is used to start a game with the arm. You have 
 |`-p`, `--path`|`str`|`"stockfish/stockfish.exe"`|No|Set the path to the Stockfish executable.|
 |`-b`, `--baud-rate`|`int`|`9600`|No|Set the baud rate for communication with the Arduino. You will only need to change this option if you modify the baud rate in the `controller/controller.ino` sketch.|
 |`-v`, `--verbose`|`bool`|`False`|No|Print verbose debugging output to stdout.|
+|`-f`, `--feedback`|`str`|`"auto"`|No|Describes how the opponent's move is communicated to the engine. If `"auto"`, the microcontroller is expected to detect and communicate the move made by the opponent (via the serial port). If `"manual"`, the move made by the opponent needs to be entered into the terminal.|
 
 You can also pass the `--help` flag to the script to print this information.
