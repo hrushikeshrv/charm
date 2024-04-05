@@ -14,6 +14,7 @@ const int BASE_SERVO_PIN = 0;
 const int BASE_ARM_SERVO_PIN = 1;
 const int ARM_ARM_SERVO_PIN = 2;
 const int GRIPPER_PITCH_SERVO_PIN = 3;
+const int GRIPPER_GRAB_SERVO_PIN = 4;
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
@@ -51,7 +52,11 @@ const float captureLowerAngles[4] = {0.0, 0.0, 0.0, 0.0};
 // The angles the arm resets to after each move
 const float resetAngles[4] = {108.0, 132.0, 165.0, 178.0};
 
-// The angles of the servos for the previous destination
+// The gripper servo angles when the gripper is open and closed
+const int gripperOpenAngle = 100;
+const int gripperClosedAngle = 77;
+
+// The previous destination angles of the servos
 float baseServoAngleCached = resetAngles[0];
 float baseArmServoAngleCached = resetAngles[1];
 float armArmServoAngleCached = resetAngles[2];
@@ -90,6 +95,9 @@ int currentDestination = 0;
 */
 int currentState = 0;
 
+// Boolean to keep track of whether the arm was notified of the move
+bool armNotified = false;
+
 
 void setup() {
   Serial.begin(115200);
@@ -116,6 +124,8 @@ void setup() {
 
 void loop() {
   if (Serial.available()) {
+    armNotified = false;
+
     String move = Serial.readString();
     move.trim();
 
@@ -125,7 +135,7 @@ void loop() {
     gripperPitchServoAngleCached = gripperPitchServoAngle;
 
     if (move == "q") {
-      Serial.println("Resetting arm position");
+      // Reset the arm's position
       baseServoAngle = resetAngles[0];
       baseArmServoAngle = resetAngles[1];
       armArmServoAngle = resetAngles[2];
@@ -164,6 +174,7 @@ void loop() {
   }
 
   if (transitionComplete()) {
+
     // Update current state and current destination
     if (currentState >= 3) {
       currentState = 0;
@@ -186,7 +197,11 @@ void loop() {
       baseArmServoAngle = resetAngles[1];
       armArmServoAngle = resetAngles[2];
       gripperPitchServoAngle = resetAngles[3];
-      Serial.println("move done");
+
+      if (!armNotified) {
+        Serial.println("move done");
+        armNotified = true;
+      }
     }
 
     // Update destination angles/take new action 
@@ -199,6 +214,12 @@ void loop() {
       // If index is -1 when current destination is 1, we have to hover over
       // the capture position
       if (currentDestination == 1 && idx == -1) {
+        // Update the previous destination angles of the servos
+        baseServoAngleCached = baseServoAngle;
+        baseArmServoAngleCached = baseArmServoAngle;
+        armArmServoAngleCached = armArmServoAngle;
+        gripperPitchServoAngleCached = gripperPitchServoAngle;
+
         if (currentState == 0 || currentState == 3) {
           baseServoAngle = captureHoverAngles[0];
           baseArmServoAngle = captureHoverAngles[1];
@@ -215,6 +236,12 @@ void loop() {
       else {
         // If we get a valid square index, we have to move to that square
         if (idx >= 0 && idx <= 63) {
+          // Update the previous destination angles of the servos
+          baseServoAngleCached = baseServoAngle;
+          baseArmServoAngleCached = baseArmServoAngle;
+          armArmServoAngleCached = armArmServoAngle;
+          gripperPitchServoAngleCached = gripperPitchServoAngle;
+
           if (currentState == 0 || currentState == 3) {
             baseServoAngle = hoverAngles[idx][0];
             baseArmServoAngle = hoverAngles[idx][1];
@@ -257,13 +284,37 @@ void loop() {
   pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
   pwm.setPWM(GRIPPER_PITCH_SERVO_PIN, 0, pulseWidth);
 
-  // Serial.print(baseServoAngleSmoothed);
-  // Serial.print(",");
-  // Serial.print(baseArmServoAngleSmoothed);
-  // Serial.print(",");
-  // Serial.print(armArmServoAngleSmoothed);
-  // Serial.print(",");
-  // Serial.println(gripperPitchServoAngleSmoothed);
+  Serial.print(baseServoAngleSmoothed);
+  Serial.print(",");
+
+  Serial.print(baseServoAngle);
+  Serial.print(",");
+  Serial.print(baseServoAnglePrev);
+  Serial.print(",");
+  Serial.print(baseServoAngleCached);
+  Serial.print(",   ");
+
+  Serial.print(baseArmServoAngleSmoothed);
+  Serial.print(",");
+
+  Serial.print(baseArmServoAngle);
+  Serial.print(",");
+  Serial.print(baseArmServoAnglePrev);
+  Serial.print(",");
+  Serial.print(baseArmServoAngleCached);
+  Serial.print(",   ");
+
+  Serial.print(armArmServoAngleSmoothed);
+  Serial.print(",");
+
+  Serial.print(armArmServoAngle);
+  Serial.print(",");
+  Serial.print(armArmServoAnglePrev);
+  Serial.print(",");
+  Serial.print(armArmServoAngleCached);
+  Serial.print(",   ");
+
+  Serial.println(gripperPitchServoAngleSmoothed);
 
   delay(5);  // loop 200 times a second
 }
@@ -309,105 +360,107 @@ int getSquareIndex(String square) {
 void updateSmoothedAngles() {
   // Calculate the smoothened baseServoAngle
   if (baseServoAngle > baseServoAngleCached) {
+    // Serial.println("Increasing base servo angle");
     if (baseServoAnglePrev < (baseServoAngle + baseServoAngleCached) / 2) {
-      baseServoAngleSmoothed = baseServoAnglePrev + (baseServoAnglePrev - baseServoAngleCached) * INTERPOLATION_FACTOR;
+      baseServoAngleSmoothed = baseServoAnglePrev + abs(baseServoAnglePrev - baseServoAngleCached) * INTERPOLATION_FACTOR;
 
       if (baseServoAngleSmoothed == baseServoAnglePrev) {
         baseServoAngleSmoothed = baseServoAnglePrev + INTERPOLATION_FACTOR;
       }
     }
     else {
-      baseServoAngleSmoothed = baseServoAnglePrev + (baseServoAngle - baseServoAnglePrev) * INTERPOLATION_FACTOR;
+      baseServoAngleSmoothed = baseServoAnglePrev + abs(baseServoAngle - baseServoAnglePrev) * INTERPOLATION_FACTOR;
     }
   }
-  else {
+  else if (baseServoAngle < baseServoAngleCached) {
+    // Serial.println("Decreasing base servo angle");
     if (baseServoAnglePrev > (baseServoAngle + baseServoAngleCached) / 2) {
-      baseServoAngleSmoothed = baseServoAnglePrev - (baseServoAngleCached - baseServoAnglePrev) * INTERPOLATION_FACTOR;
+      baseServoAngleSmoothed = baseServoAnglePrev - abs(baseServoAngleCached - baseServoAnglePrev) * INTERPOLATION_FACTOR;
 
       if (baseServoAngleSmoothed == baseServoAnglePrev) {
         baseServoAngleSmoothed = baseServoAnglePrev - INTERPOLATION_FACTOR;
       }
     }
     else {
-      baseServoAngleSmoothed = baseServoAnglePrev - (baseServoAnglePrev - baseServoAngle) * INTERPOLATION_FACTOR;
+      baseServoAngleSmoothed = baseServoAnglePrev - abs(baseServoAnglePrev - baseServoAngle) * INTERPOLATION_FACTOR;
     }
   }
 
   // Calculate the smoothened baseArmServoAngle
   if (baseArmServoAngle > baseArmServoAngleCached) {
     if (baseArmServoAnglePrev < (baseArmServoAngle + baseArmServoAngleCached) / 2) {
-      baseArmServoAngleSmoothed = baseArmServoAnglePrev + (baseArmServoAnglePrev - baseArmServoAngleCached) * INTERPOLATION_FACTOR;
+      baseArmServoAngleSmoothed = baseArmServoAnglePrev + abs(baseArmServoAnglePrev - baseArmServoAngleCached) * INTERPOLATION_FACTOR;
 
       if (baseArmServoAngleSmoothed == baseArmServoAnglePrev) {
         baseArmServoAngleSmoothed = baseArmServoAnglePrev + INTERPOLATION_FACTOR;
       }
     }
     else {
-      baseArmServoAngleSmoothed = baseArmServoAnglePrev + (baseArmServoAngle - baseArmServoAnglePrev) * INTERPOLATION_FACTOR;
+      baseArmServoAngleSmoothed = baseArmServoAnglePrev + abs(baseArmServoAngle - baseArmServoAnglePrev) * INTERPOLATION_FACTOR;
     }
   }
-  else {
+  else if (baseArmServoAngle < baseArmServoAngleCached) {
     if (baseArmServoAnglePrev > (baseArmServoAngle + baseArmServoAngleCached) / 2) {
-      baseArmServoAngleSmoothed = baseArmServoAnglePrev - (baseArmServoAngleCached - baseArmServoAnglePrev) * INTERPOLATION_FACTOR;
+      baseArmServoAngleSmoothed = baseArmServoAnglePrev - abs(baseArmServoAngleCached - baseArmServoAnglePrev) * INTERPOLATION_FACTOR;
 
       if (baseArmServoAngleSmoothed == baseArmServoAnglePrev) {
         baseArmServoAngleSmoothed = baseArmServoAnglePrev - INTERPOLATION_FACTOR;
       }
     }
     else {
-      baseArmServoAngleSmoothed = baseArmServoAnglePrev - (baseArmServoAnglePrev - baseArmServoAngle) * INTERPOLATION_FACTOR;
+      baseArmServoAngleSmoothed = baseArmServoAnglePrev - abs(baseArmServoAnglePrev - baseArmServoAngle) * INTERPOLATION_FACTOR;
     }
   }
 
   // Calculate the smoothed armArmServoAngle
   if (armArmServoAngle > armArmServoAngleCached) {
     if (armArmServoAnglePrev < (armArmServoAngle + armArmServoAngleCached) / 2) {
-      armArmServoAngleSmoothed = armArmServoAnglePrev + (armArmServoAnglePrev - armArmServoAngleCached) * INTERPOLATION_FACTOR;
+      armArmServoAngleSmoothed = armArmServoAnglePrev + abs(armArmServoAnglePrev - armArmServoAngleCached) * INTERPOLATION_FACTOR;
 
       if (armArmServoAngleSmoothed == armArmServoAnglePrev) {
         armArmServoAngleSmoothed = armArmServoAnglePrev + INTERPOLATION_FACTOR;
       }
     }
     else {
-      armArmServoAngleSmoothed = armArmServoAnglePrev + (armArmServoAngle - armArmServoAnglePrev) * INTERPOLATION_FACTOR;
+      armArmServoAngleSmoothed = armArmServoAnglePrev + abs(armArmServoAngle - armArmServoAnglePrev) * INTERPOLATION_FACTOR;
     }
   }
-  else {
+  else if (armArmServoAngle < armArmServoAngleCached) {
     if (armArmServoAnglePrev > (armArmServoAngle + armArmServoAngleCached) / 2) {
-      armArmServoAngleSmoothed = armArmServoAnglePrev - (armArmServoAngleCached - armArmServoAnglePrev) * INTERPOLATION_FACTOR;
+      armArmServoAngleSmoothed = armArmServoAnglePrev - abs(armArmServoAngleCached - armArmServoAnglePrev) * INTERPOLATION_FACTOR;
 
       if (armArmServoAngleSmoothed == armArmServoAnglePrev) {
         armArmServoAngleSmoothed = armArmServoAnglePrev - INTERPOLATION_FACTOR;
       }
     }
     else {
-      armArmServoAngleSmoothed = armArmServoAnglePrev - (armArmServoAnglePrev - armArmServoAngle) * INTERPOLATION_FACTOR;
+      armArmServoAngleSmoothed = armArmServoAnglePrev - abs(armArmServoAnglePrev - armArmServoAngle) * INTERPOLATION_FACTOR;
     }
   }
 
   // Calculate the smoothed gripperPitchServoAngle
   if (gripperPitchServoAngle > gripperPitchServoAngleCached) {
     if (gripperPitchServoAnglePrev < (gripperPitchServoAngle + gripperPitchServoAngleCached) / 2) {
-      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev + (gripperPitchServoAnglePrev - gripperPitchServoAngleCached) * INTERPOLATION_FACTOR;
+      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev + abs(gripperPitchServoAnglePrev - gripperPitchServoAngleCached) * INTERPOLATION_FACTOR;
 
       if (gripperPitchServoAngleSmoothed == gripperPitchServoAnglePrev) {
         gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev + INTERPOLATION_FACTOR;
       }
     }
     else {
-      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev + (gripperPitchServoAngle - gripperPitchServoAnglePrev) * INTERPOLATION_FACTOR;
+      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev + abs(gripperPitchServoAngle - gripperPitchServoAnglePrev) * INTERPOLATION_FACTOR;
     }
   }
-  else {
+  else if (gripperPitchServoAngle < gripperPitchServoAngleCached) {
     if (gripperPitchServoAnglePrev > (gripperPitchServoAngle + gripperPitchServoAngleCached) / 2) {
-      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - (gripperPitchServoAngleCached - gripperPitchServoAnglePrev) * INTERPOLATION_FACTOR;
+      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - abs(gripperPitchServoAngleCached - gripperPitchServoAnglePrev) * INTERPOLATION_FACTOR;
 
       if (gripperPitchServoAngleSmoothed == gripperPitchServoAnglePrev) {
         gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - INTERPOLATION_FACTOR;
       }
     }
     else {
-      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - (gripperPitchServoAnglePrev - gripperPitchServoAngle) * INTERPOLATION_FACTOR;
+      gripperPitchServoAngleSmoothed = gripperPitchServoAnglePrev - abs(gripperPitchServoAnglePrev - gripperPitchServoAngle) * INTERPOLATION_FACTOR;
     }
   }
 }
@@ -434,13 +487,19 @@ bool transitionComplete() {
 
 
 void openGripper() {
-  // Serial.println("Opening gripper");
+  float pulseWidth;
+  pulseWidth = map(gripperOpenAngle, 0, 180, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
+  pwm.setPWM(GRIPPER_GRAB_SERVO_PIN, 0, pulseWidth);
   gripperClosed = false;
   delay(MOVE_SETTLE_DELAY);
 }
 
 void closeGripper() {
-  // Serial.println("Closing gripper");
+  float pulseWidth;
+  pulseWidth = map(gripperClosedAngle, 0, 180, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  pulseWidth = int(float(pulseWidth) / 1000000 * FREQUENCY * 4096);
+  pwm.setPWM(GRIPPER_GRAB_SERVO_PIN, 0, pulseWidth);
   gripperClosed = true;
   delay(MOVE_SETTLE_DELAY);
 }
