@@ -11,3 +11,6 @@ stockfish/
 *.kicad_prl
 chessbot-backups/
 fp-info-cache
+
+# Inventor Files
+OldVersions/

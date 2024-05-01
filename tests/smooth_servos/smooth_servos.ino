@@ -8,7 +8,7 @@ const float FREQUENCY = 50;
 const float MOVE_SETTLE_DELAY = 300;
 // The smoothening factor for the arm's movement. Should be greater than 0 and less than 1.
 // Higher number means less smooth.
-float INTERPOLATION_FACTOR = 0.04;
+float INTERPOLATION_FACTOR = 0.07;
 
 const int BASE_SERVO_PIN = 0;
 const int BASE_ARM_SERVO_PIN = 1;

@@ -33,7 +33,7 @@ int controlD = A3;
 int motorA = 0;
 int motorB = 1;
 int motorC = 2;
-int motorD = 3;
+int motorD = 4;
 
 void setup() 
 {

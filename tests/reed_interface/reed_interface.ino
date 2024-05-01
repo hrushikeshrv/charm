@@ -1,24 +1,28 @@
-const int REED_PIN = 2;
-
+int load = 7;
+int clockEnablePin = 4;
+int dataIn = 5;
+int clockIn = 6;
 
 void setup() {
-
-  // put your setup code here, to run once:
-
-  Serial.begin(9600);
-  pinMode(REED_PIN, INPUT_PULLUP);
+  Serial.begin(115200);
+  pinMode(load, OUTPUT);
+  pinMode(clockEnablePin, OUTPUT);
+  pinMode(clockIn, OUTPUT);
+  pinMode(dataIn, INPUT);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  int triggered = digitalRead(REED_PIN);
+  digitalWrite(load, LOW);
+  delayMicroseconds(5);
+  digitalWrite(load, HIGH);
+  delayMicroseconds(5);
 
-  if (triggered == LOW) {
+  digitalWrite(clockIn, HIGH);
+  digitalWrite(clockEnablePin, LOW);
+  byte incoming = shiftIn(dataIn, clockIn, LSBFIRST);
+  digitalWrite(clockEnablePin, HIGH);
 
-    Serial.println("Switch closed");
-  }
-  else {
-    Serial.println("Switch open");
-  }
-  delay(1000);
+  Serial.print("State: ");
+  Serial.println(incoming, BIN);
+  delay(200);
 }
