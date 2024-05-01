@@ -81,7 +81,7 @@ def main():
     parser.add_argument(
         '-f',
         '--feedback',
-        default='auto',
+        default='manual',
         help='The feedback type. If "auto", the move made by the opponent is communicated by the arm, if "manual", the move made by the opponent needs to be entered into the terminal.',
         dest='feedback',
         choices=['auto', 'manual']

@@ -96,7 +96,7 @@ int currentDestination = 0;
 int currentState = 0;
 
 // Boolean to keep track of whether the arm was notified of the move
-bool armNotified = false;
+bool engineNotified = false;
 
 
 void setup() {
@@ -124,7 +124,7 @@ void setup() {
 
 void loop() {
   if (Serial.available()) {
-    armNotified = false;
+    engineNotified = false;
 
     String move = Serial.readString();
     move.trim();
@@ -198,9 +198,9 @@ void loop() {
       armArmServoAngle = resetAngles[2];
       gripperPitchServoAngle = resetAngles[3];
 
-      if (!armNotified) {
+      if (!engineNotified) {
         Serial.println("move done");
-        armNotified = true;
+        engineNotified = true;
       }
     }
 
