@@ -60,28 +60,21 @@ Download the Arduino IDE from [arduino.cc](https://www.arduino.cc/en/software)
 **Step 2** - Connect Arduino  
 Connect your Arduino Uno to your computer. 
 
-The Arduino code included in this repository is specific to an Arduino Uno. If you want to use another Arduino model with the arm, you should make sure that your model has a sufficient number of GPIO pins to be able to interface with all of the electronic components the arm needs.
+The Arduino code included in this repository is specific to an Arduino Uno. If you want to use another Arduino model with the arm, you will need to change the pin numbers defined in the [`controller/controller.ino`](https://github.com/hrushikeshrv/charm/tree/main/controller) file according to the pins you will be using.
 
-The current design needs at least 14 GPIO pins, excluding the Tx and Rx GPIO pins. Moreover, if you use another Arduino model instead of the Uno, you will need to update the pin numbers assigned in the [`controller/controller.ino`](https://github.com/hrushikeshrv/charm/tree/main/controller) file with the pin numbers you are using for each component. The pins are configured as `const int`'s near the begining of the sketch, and there are comments describing which electronic component each pin is connected to.
+**Step 3** - Install Adafruit PWM Servo Driver Library  
+To use the PCA9685 driver, you will need to install the Adafruit PWM Servo Driver Library.
+
+In the Arduino IDE, go to the Library Manager, search for Adafruit PWM Servo Driver Library, and click Install.
+
+**Step 4** - Modify Sketch  
+The Arduino code controls the arm's movement, for which it defines some constants. All pins and constants are configured as `const int`'s near the beginning of the sketch, and there are comments describing what each constant does. 
+
+Open the [`controller/controller.ino`](https://github.com/hrushikeshrv/charm/tree/main/controller) file in the Arduino IDE and read through the comments to figure out which constants you want to change. 
 
 You can use the [circuit schematic](https://github.com/hrushikeshrv/charm/tree/main/data/schematics) to help. 
 
-**Step 2** - Modify Sketch  
-The Arduino code controls the arm's movement, for which it needs to know the dimensions of the chess board. In particular, it needs to know how big one square of the chess board is. 
-
-Open the [`controller/controller.ino`](https://github.com/hrushikeshrv/charm/tree/main/controller) file in the Arduino IDE, and look for the `SQUARE_WIDTH` variable. Set it to be the width of one square of the chess board you are using (measured in centimeters).
-
-The arm is designed for a standard size chess board, where one square has a side of around 5 cm. If you are using a board with side _smaller_ than 5 cm, you may need to modify the design of the arm's gripper, since it may be too big for the board and may knock pieces over when it makes a move. If your board has a square  width larger than 5 cm, the gripper should be fine.
-
-You will also need to tell the arm where it is positioned relative to the chess board. Measure the distance `armX` and `armY` as shown in the diagram below -
-
-<img src="./media/arm-position-measurement.png" style="text-align: center;">
-
-Look for the variable `ARM_X` in the sketch and set it to the value of the measured `armX` distance, and look for the variable `ARM_Y` in the sketch and set it to the value of the measured `armY` distance. Note that `armY` is the distance from the edge of the chess board to the center of the axis of the servo motor that rotates the arm's base, and not the center of the arm's base (there may be a small offset).
-
-You may need to test the accuracy of the arm and tweak these values a few times.
-
-**Step 3** - Build & Upload  
+**Step 5** - Build & Upload  
 Select your Arduino board, and click the build button and then the upload button.
 
-That's it for the setup! If everything worked correctly, you are ready to play a game with the arm. Take a look at the [usage](./usage.md) page to get started.
+If everything worked correctly, you are ready to calibrate the arm. Take a look at the [calibration](./calibration.md) page to get started.

@@ -21,9 +21,10 @@ In order to recreate this project, you will need a basic working knowledge of -
 To recreate this project, read this document in the order given below -
 
 1. This page
-2. [Assembly/Hardware Setup](./assemble.md)
+2. [Assembly](./assemble.md)
 3. [Software Setup](./software-setup.md)
-4. [Usage](./usage.md)
-5. [Stockfish](./stockfish.md)
+4. [Calibration](./calibration.md)
+5. [Usage](./usage.md)
+6. [Stockfish](./stockfish.md)
 
 If you find any errors, improvements, or find that any part of the document needs clarification, please feel free to [open an issue](https://github.com/hrushikeshrv/charm/issues). This document and this project is licensed under the GPL v3.0 License, which can be found [here](https://github.com/hrushikeshrv/charm/blob/main/LICENSE).
