@@ -57,3 +57,10 @@ def get_move_from_arm(socket: serial.Serial) -> tuple[str, str]:
         print('\n\nReceived invalid data from the arm')
         raise
     return start, end
+
+
+def wait_till_move_made(socket: serial.Serial) -> None:
+    """
+    Blocks till the arm confirms that it is done moving.
+    """
+    socket.read(9)      # Arm sends the characters "move done" when it is done moving

@@ -2,13 +2,20 @@ import argparse
 from functools import wraps
 from math import log2
 import sys
+from time import sleep
+
+import comms
+import cv2
 
 from chessengine import Board
 from chessengine.lookup_tables import coords_to_pos, pos_to_coords
 from chessengine.utils import clear_lines
-import comms
-from utils import square_names, get_moves_made
+from utils import square_names, get_moves_made, detect_move_made
+
 import stockfishpy
+
+
+cam = cv2.VideoCapture(0)
 
 
 def handle_exit(f):
@@ -21,6 +28,8 @@ def handle_exit(f):
             f()
         except KeyboardInterrupt as e:
             print(f'\nDetected {e.__class__.__name__} {e}.')
+            cam.release()
+            cv2.destroyAllWindows()
             # TODO: Inform arm
             print('Exiting')
             sys.exit(1)
@@ -112,6 +121,7 @@ def main():
 
     print(board)
     lines_printed = 11
+    prev_state = None
     while True:
         if not args.verbose:
             clear_lines(lines_printed)
@@ -150,13 +160,24 @@ def main():
                     print(f'Sending {best_move} to arm')
                     lines_printed += 1
                 comms.send_move_to_arm(socket, (best_move[0:2], best_move[2:]), capture)
+            # Wait for arm to confirm that move was made
+            comms.wait_till_move_made(socket)
+            sleep(1)
+            # Capture image from webcam representing current state
+            prev_state = cam.read()
         else:
             if args.verbose:
-                print('Waiting to detect opponent\'s move')
+                print('Waiting for opponent')
                 lines_printed += 1
             if args.feedback == 'auto':
-                # Read move to make from serial port
-                start, end = comms.get_move_from_arm(socket)
+                input('Press Enter when opponent has finished moving...')
+                lines_printed += 1
+                if args.verbose:
+                    print('Detecting opponent\' move...')
+                    lines_printed += 1
+                sleep(1)
+                curr_state = cam.read()
+                move = detect_move_made(prev_state, curr_state)
             else:
                 # Read move from stdin
                 move = input('Enter the move made by the opponent in the format <start_square>,<end_square> - ').split(',')
@@ -169,8 +190,9 @@ def main():
                     print(f'Couldn\'t identify the move {",".join(move)}. Enter the move in the format <start_square>,<end_square>. For example: a4,a5')
                     move = input('Enter the move made by the opponent in the format <start_square>,<end_square> - ').split(',')
                     lines_printed += 2
-                start = move[0].upper()
-                end = move[1].upper()
+
+            start = move[0].upper()
+            end = move[1].upper()
             if args.verbose:
                 print(f'Received move from arm - {start} to {end}')
                 lines_printed += 1
