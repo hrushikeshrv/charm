@@ -3,6 +3,7 @@ from PIL import Image
 
 import vision
 
+from chessengine import Board
 from chessengine.lookup_tables import pos_to_coords
 
 
@@ -23,7 +24,7 @@ def get_moves_made(board):
     return moves
 
 
-def detect_move_made(prev_state: Image, curr_state: Image) -> list[str]:
+def detect_move_made(board: Board, prev_state: Image, curr_state: Image) -> list[str]:
     """
     Takes the previous and current state image and detects the piece that moved on the board.
     If CV fails, verifies with Gemini.

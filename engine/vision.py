@@ -1,9 +1,7 @@
 import cv2
 import numpy as np
 import imutils
-import easyocr
 from PIL import Image
-import os
 
 
 def crop_board(image: Image) -> Image:
@@ -29,7 +27,10 @@ def label_chessboard(board: Image | str) -> Image:
     for i in range(grid_size):
         for j in range(grid_size):
             label = f'{chr(65 + j)}{8 - i}'
-            cv2.putText(board, label, (j * square_width + 30, (i + 1) * square_height - 30), cv2.FONT_HERSHEY_PLAIN, 0.4, (0, 0, 0), 1, cv2.LINE_AA)
+            cv2.putText(
+                board, label, (j * square_width + 30, (i + 1) * square_height - 30),
+                cv2.FONT_HERSHEY_PLAIN, 0.4, (0, 0, 0), 1, cv2.LINE_AA
+            )
 
     display_width = 800
     display_height = int(board.shape[0] * (display_width / board.shape[1]))
@@ -37,7 +38,44 @@ def label_chessboard(board: Image | str) -> Image:
 
 
 def remove_bg_with_green_contours(image: Image) -> Image:
-    pass
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    green_low = np.array([40, 40, 40])
+    green_high = np.array([80, 255, 255])
+    kernel = np.ones((5, 5), np.uint8)
+    mask = cv2.dilate(
+        cv2.inRange(hsv_image, green_low, green_high), kernel, iterations=2
+    )
+    output = np.zeros_like(mask)
+    output[:, :, :] = 255
+    for i in range(3):
+        output[:, :, i] = np.where(mask == 255, image[:, :, i], output[:, :, i])
+    return output
+
+
+def crop_moved_squares(image: Image) -> Image:
+    """
+    Crop the image to only include the green highlighted squares
+    """
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    green_low = np.array([40, 40, 40])
+    green_high = np.array([80, 255, 255])
+    kernel = np.ones((5, 5), np.uint8)
+    mask = cv2.dilate(
+       cv2.inRange(hsv, green_low, green_high), kernel, iterations=2
+    )
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cropped_images = []
+    for contour in contours:
+        if cv2.contourArea(contour) > 1000:  # Adjust this value as needed
+            x, y, w, h = cv2.boundingRect(contour)
+            cropped_image = image[y:y + h, x:x + w]
+            cropped_images.append(cropped_image)
+
+    if cropped_images:
+        max_height = max(img.shape[0] for img in cropped_images)
+        resized_images = [cv2.resize(img, (int(img.shape[1] * max_height / img.shape[0]), max_height)) for img in
+                          cropped_images]
+        return np.hstack(resized_images)
 
 
 def detect_move_made(prev_state: Image, curr_state: Image) -> list[str]:
@@ -62,5 +100,11 @@ def detect_move_made(prev_state: Image, curr_state: Image) -> list[str]:
             x, y, w, h = cv2.boundingRect(contour)
             cv2.rectangle(prev_state, (x, y), (x + w, y + h), (0, 0, 255), 2)
             cv2.rectangle(curr_state, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+    curr_state = crop_moved_squares(
+        label_chessboard(
+            remove_bg_with_green_contours(curr_state)
+        )
+    )
 
     return ['C2', 'C3']
