@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import google.generativeai as genai
 import imutils
 from PIL import Image
 
@@ -106,5 +107,6 @@ def detect_move_made(prev_state: Image, curr_state: Image) -> list[str]:
             remove_bg_with_green_contours(curr_state)
         )
     )
-
-    return ['C2', 'C3']
+    model = genai.GenerativeModel('gemini-pro-vision')
+    response = model.generate_content([curr_state, "Read the characters present inside the green boxes. List them in csv form."])
+    return response.text.split(',')
