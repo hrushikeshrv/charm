@@ -76,7 +76,7 @@ def crop_moved_squares(image: Image) -> Image:
     green_high = np.array([80, 255, 255])
     kernel = np.ones((5, 5), np.uint8)
     mask = cv2.dilate(
-       cv2.inRange(hsv, green_low, green_high), kernel, iterations=2
+        cv2.inRange(hsv, green_low, green_high), kernel, iterations=2
     )
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cropped_images = []
@@ -135,3 +135,10 @@ def detect_move_made(prev_state: Image, curr_state: Image) -> list[str]:
     model = genai.GenerativeModel('gemini-pro-vision')
     response = model.generate_content([curr_state, "Read the characters present inside the green boxes. List them in csv form."])
     return response.text.split(',')
+
+
+prev_state = cv2.imread('data/prev_state.jpg')
+curr_state = cv2.imread('data/curr_state.jpg')
+
+detect_move_made(prev_state, curr_state)
+cv2.destroyAllWindows()

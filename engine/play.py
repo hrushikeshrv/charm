@@ -121,7 +121,7 @@ def main():
 
     print(board)
     lines_printed = 11
-    prev_state_image = None
+    _, prev_state_image = cam.read()
     while True:
         if not args.verbose:
             clear_lines(lines_printed)
@@ -164,7 +164,7 @@ def main():
             comms.wait_till_move_made(socket)
             sleep(1)
             # Capture image from webcam representing current state
-            prev_state_image = cam.read()
+            _, prev_state_image = cam.read()
         else:
             if args.verbose:
                 print('Waiting for opponent')
@@ -173,10 +173,13 @@ def main():
                 input('Press Enter when opponent has finished moving...')
                 lines_printed += 1
                 if args.verbose:
-                    print('Detecting opponent\' move...')
+                    print('Detecting opponent\'s move...')
                     lines_printed += 1
                 sleep(1)
-                move = detect_move_made(prev_state_image, cam.read())
+                cv2.imshow('Previous state', prev_state_image)
+                cv2.waitKey(1)
+                _, curr_state_image = cam.read()
+                move = detect_move_made(board, prev_state_image, curr_state_image)
             else:
                 # Read move from stdin
                 move = input('Enter the move made by the opponent in the format <start_square>,<end_square> - ').split(',')
