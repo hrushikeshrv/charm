@@ -53,15 +53,15 @@ const int grabbingAngles[64][4] = {
 
 // The angles for the position where captured pieces should be
 // dropped in the format - {base angle, base-arm angle, arm-arm angle, gripper pitch}
-const float captureHoverAngles[4] = {0.0, 0.0, 0.0, 0.0};
-const float captureLowerAngles[4] = {0.0, 0.0, 0.0, 0.0};
+const float captureHoverAngles[4] = {60.0, 74.0, 76.0, 105.0};
+const float captureLowerAngles[4] = {60.0, 61.0, 71.0, 126.0};
 
 // The angles the arm resets to after each move
 const float resetAngles[4] = {108.0, 132.0, 165.0, 178.0};
 
 // The gripper servo angles when the gripper is open and closed
-const int gripperOpenAngle = 100;
-const int gripperClosedAngle = 77;
+const int gripperOpenAngle = 140;
+const int gripperClosedAngle = 100;
 
 // The previous destination angles of the servos
 float baseServoAngleCached = resetAngles[0];
