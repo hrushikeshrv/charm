@@ -33,7 +33,7 @@ int controlD = A3;
 int motorA = 0;
 int motorB = 1;
 int motorC = 2;
-int motorD = 4;
+int motorD = 3;
 
 void setup() 
 {
@@ -75,12 +75,12 @@ void loop() {
   moveMotor(controlD, motorD);
   
   if (Serial.available()) {
+    Serial.readString();
     for (int i = 14; i < 18; i++) {
       int potVal = analogRead(i);
       float servoAngle = map(potVal, 0, 1023, 0.0, 180.0);
-      Serial.print(servoAngle); Serial.print(", ");
+      Serial.print(servoAngle); Serial.print(",");
     }
     Serial.println("");
-    Serial.readString();
   }
 }
